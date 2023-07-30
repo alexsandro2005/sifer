@@ -3,10 +3,10 @@ const inputs = document.querySelectorAll('#formulario input');
 
 const expresiones = {
 	document: /^\d{6,10}$/, // 6 a 10 numeros.
-	username: /^[a-zA-Z0-9\_\-]{10,12}$/, // Letras, numeros, guion y guion_bajo
-	name: /^[a-zA-ZÀ-ÿ\s]{4,15}$/, // Letras y espacios, pueden llevar acentos.
-	surname: /^[a-zA-ZÀ-ÿ\s]{4,15}$/, // Letras y espacios, pueden llevar acentos.
-	password: /^.{10,12}$/, // 10 a 12 digitos.
+	username: /^[a-zA-Z0-9\_\-]{6,12}$/, // Letras, numeros, guion y guion_bajo
+	name: /^[a-zA-ZÀ-ÿ\s]{5,20}$/, // Letras y espacios, pueden llevar acentos.
+	surname: /^[a-zA-ZÀ-ÿ\s]{5,20}$/, // Letras y espacios, pueden llevar acentos.
+	password: /^.{10,15}$/, // 10 a 12 digitos.
 	email: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
 	telephone: /^\d{10}$/ // 10 numeros.
 }

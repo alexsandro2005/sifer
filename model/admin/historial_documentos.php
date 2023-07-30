@@ -4,7 +4,14 @@ require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
 
-$sentencia = $connection->query("SELECT venta_documentos.total, venta_documentos.fecha, venta_documentos.id_venta,venta_documentos.fecha_fin,user.name,motorcycles.placa,GROUP_CONCAT(	documentos.codigo, '..',documentos.nombre, '..', documentos_vendidos.existencia SEPARATOR '__') AS documentos FROM venta_documentos INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = venta_documentos.id_venta INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=venta_documentos.documento INNER JOIN motorcycles ON  motorcycles.placa=venta_documentos.placa GROUP BY venta_documentos.id_venta ORDER BY venta_documentos.id_venta;");
+require_once("../../controller/validarSesion.php");
+
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
+
+$sentencia = $connection->query("SELECT venta_documentos.total, venta_documentos.fecha, venta_documentos.id_venta,venta_documentos.fecha_fin,user.name,motorcycles.placa,documentos.nombre,GROUP_CONCAT(	documentos.codigo, '..',documentos.nombre, '..', documentos_vendidos.existencia SEPARATOR '__') AS documentos FROM venta_documentos INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = venta_documentos.id_venta INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=venta_documentos.documento INNER JOIN motorcycles ON  motorcycles.placa=venta_documentos.placa GROUP BY venta_documentos.id_venta ORDER BY venta_documentos.id_venta;");
 $ventas = $sentencia->fetchAll(PDO::FETCH_OBJ);
 
 
@@ -20,28 +27,25 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
     <!-- CSS personalizado -->
     <link rel="stylesheet" href="main.css">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
-    <!----css3---->
-    <link rel="stylesheet" href="../../controller/CSS/custom.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-    <!--google material icon-->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
     <!--datables CSS básico-->
     <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
     <!--datables estilo bootstrap 4 CSS-->
     <link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
-    <title>LISTA DE VENTAS DE DOCUMENTOS</title>
+    <link rel="stylesheet" href="../../controller/css/custom.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>ACTUALIZACION SOAT || SIFER-APP</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
+    <!----css3---->
+    <link rel="stylesheet" href="../../controller/CSS/custom.css">
     <!--google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,242 +60,20 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
 
 </head>
 
+
 <body>
     <div class="wrapper">
-        <div id="sidebar">
-            <div class="sidebar-header">
-                <h3><img src="../../controller/image/favicon.png" class="img-fluid" /><span><?php echo $usua['type_user'] ?> <span><?php echo $usua['name'] ?></span></h3>
-                <h3><span></span></h3>
-            </div>
-            <ul class="list-unstyled component m-0">
-                <li class="active">
-                    <a href="index.php" class="dashboard"><i class="material-icons">dashboard</i>Menu Principal </a>
-                </li>
-                <li class="dropdown">
-                    <a href="#homeSubmen15" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">dashboard</i>Act. Recientes
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmen15">
-                        <li><a href="act_trabajador.php">Actividades Trabajadores</a></li>
-                        <li><a href="act_cliente.php">Actividades Clientes</a></li>
 
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#homeSubmen20" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">dashboard</i>Editar Cuenta
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmen20">
-                        <li><a href="./contrasena.php">Cambiar contraseña</a></li>
+        <?php
 
-                    </ul>
-                </li>
+            require_once('./menu.php');
+        
+        ?>
 
-                <li class="dropdown">
-                    <a href="#homeSubmen11" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">dashboard</i>Crear
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmen11">
-                        <li><a href="crear_color.php">Crear Color</a></li>
-                        <li><a href="crear_modelo.php">Crear Modelo</a></li>
-                        <li><a href="crear_marca.php">Crear Marca</a></li>
-                        <li><a href="crear_combustible.php">Crear Combustible</a></li>
-                        <li><a href="crear_tipo.php">Crear T.Usuario</a></li>
-                        <li><a href="categoria.php">Categoria Producto</a></li>
-                        <li><a href="carroceria.php">Crear Carroceria</a></li>
-                        <li><a href="crear_cilindraje.php">Crear Cilindraje</a></li>
-                        <li><a href="servicio_moto.php">Crear Serv. Moto</a></li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="#homeSubmenu2" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="material-icons">apps</i>Usuarios
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu2">
-                        <li><a href="crear_usu.php">Crear Usuario</a></li>
-                        <li><a href="lista_usu.php">Lista usuarios</a></li>
-                        <li><a href="lista_tipo_usu.php">Lista de tipos de usuarios</a></li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="#homeSubmenu9" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">date_range</i>Clientes
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu9">
-                        <li><a href="crear_cliente.php">Crear cliente</a></li>
-                        <li><a href="lista_clientes.php">Lista de Clientes</a></li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="#homeSubmenu4" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="material-icons">equalizer</i>Motos
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu4">
-                        <li><a href="list_motos.php">Lista de Motos</a></li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="#homeSubmen17" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">dashboard</i>Productos
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmen17">
-                        <li><a href="lista_products.php">Lista de Productos</a></li>
-                        <li><a href="formulario.php">Crear Producto</a></li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="#homeSubmenu12" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">date_range</i>Servicios
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu12">
-                        <li><a href="service.php">Crear Servicio</a></li>
-                        <li><a href="lista_service.php">Lista de Servicios</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#homeSubmenu19" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">date_range</i>Documentos Legales
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu19">
-                        <li><a href="documentos.php">Crear Documento Legal</a></li>
-                        <li><a href="lista_documento.php">Lista de Documentos legales</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#homeSubmenu5" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="material-icons">border_color</i>Generar Ventas
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu5">
-                        <li><a href="vender.php">Venta de Productos</a></li>
-                        <li><a href="vender_servicio.php">Venta de Servicios</a></li>
-                        <li><a href="vender_documento.php">Venta de Documentos</a></li>
-                        <li><a href="vender_completo.php">Venta completa</a></li>
-                        <li><a href="ventas.php">Listas de Ventas</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#homeSubmenu22" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="material-icons">border_color</i>Compras
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu22">
-                        <li><a href="compras.php">Compras de Productos</a></li>
-
-
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="#homeSubmenu7" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">content_copy</i>Reportes
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu7">
-                        <li><a href="reporte_usu.php">Reporte Usuarios</a></li>
-                        <li><a href="lista_products.php">Inventario Productos</a></li>
-                        <li><a href="ventas.php">Reporte de Ventas</a></li>
-                    </ul>
-                </li>
-
-                <li class="dropdown">
-                    <a href="#homeSubmenu15" data-toggle="collapse" class="dropdown-toggle">
-                        <i class="material-icons">content_copy</i>Copia de seguridad
-                    </a>
-                    <ul class="collapse list-unstyled menu" id="homeSubmenu15">
-                        <li><a href="respaldo/respaldo.php">Generar Copia</a></li>
-                    </ul>
-                </li>
-
-            </ul>
-        </div>
-
-        <!-------sidebar--design- close----------->
-
-
-
-        <!-------page-content start----------->
-
-        <div id="content">
-
-            <!------top-navbar-start----------->
-
-            <div class="top-navbar">
-                <div class="xd-topbar">
-                    <div class="row">
-                        <div class="col-2 col-md-1 col-lg-1 order-2 order-md-1 align-self-center">
-                            <div class="xp-menubar">
-                                <span class="material-icons text-white">signal_cellular_alt</span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-5 col-lg-3 order-3 order-md-2">
-                            <div class="xp-searchbar">
-                                <form>
-                                    <div class="input-group">
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-
-                        <div class="col-10 col-md-6 col-lg-8 order-1 order-md-3">
-                            <div class="xp-profilebar text-right">
-                                <nav class="navbar p-0">
-                                    <ul class="nav navbar-nav flex-row ml-auto">
-                                        <li class="dropdown nav-item active">
-                                            <a class="nav-link" href="#" data-toggle="dropdown">
-                                                <span class="material-icons">notifications</span>
-                                                <span class="notification">4</span>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li><a href="#">You Have 4 New Messages</a></li>
-                                                <li><a href="#">You Have 4 New Messages</a></li>
-                                                <li><a href="#">You Have 4 New Messages</a></li>
-                                                <li><a href="#">You Have 4 New Messages</a></li>
-                                            </ul>
-                                        </li>
-
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#">
-                                                <span class="material-icons">question_answer</span>
-                                            </a>
-                                        </li>
-
-                                        <li class="dropdown nav-item">
-                                            <a class="nav-link" href="#" data-toggle="dropdown">
-                                                <img src="../../controller/image/favicon.png" style="width:40px; border-radius:50%;" />
-                                                <span class="xp-user-live"></span>
-                                            </a>
-                                            <ul class="dropdown-menu small-menu">
-                                                <li>
-                                                    <form method="POST">
-                                                        <tr><br>
-                                                            <td colspan="2" align="center">
-                                                                <input type="submit" value="Cerrar sesion" id="btn_quote" name="btncerrar" class="btn__out" />
-                                                            </td>
-                                                        </tr>
-                                                    </form>
-                                                </li>
-
-                                            </ul>
-                                        </li>
-
-
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-
-                    </div>
 
                     <div class="xp-breadcrumbbar text-center">
-                        <h2 class="page-title"><span>REPORTE ACTUALIZACION DE SOAT </span></h2>
-
+                        <h2 class="page-title"><span>REPORTE ACTUALIZACION DE TECNOMECANICA </span></h2>
                     </div>
-
 
                 </div>
             </div>
@@ -308,15 +90,16 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
                                 $fecha_actual = new DateTime();
                                 echo '<table class="table table-striped table-bordered" cellspacing="0" width="100%">';
                                 echo '<thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Placa</th>
-                                        <th>Fecha Venta</th>
-                                        <th>Fecha Actualizacion</th>
-                                        <th>Dias Restantes</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>';
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Placa</th>
+                                            <th>Documento</th>
+                                            <th>Fecha Venta</th>
+                                            <th>Fecha Actualizacion</th>
+                                            <th>Dias Restantes</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>';
 
                                 echo '<tbody>';
                                 foreach ($ventas as $venta) {
@@ -331,9 +114,10 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
                                     echo '<tr class="' . $class . '">';
                                     echo '<td>' . $venta->name . '</td>';
                                     echo '<td>' . $venta->placa . '</td>';
+                                    echo '<td>' . $venta->nombre . '</td>';
                                     echo '<td>' . $fechaVenta->format('Y-m-d H:i:s') . '</td>';
                                     echo '<td>' . $fechaVencimiento->format('Y-m-d H:i:s') . '</td>';
-                                    echo '<td>' . $diasRestantes . ' dias'. '</td>';
+                                    echo '<td>' . $diasRestantes . ' dias' . '</td>';
                                     echo '<td>' . $venta->total . '</td>';
                                     echo '</tr>';
                                 }
@@ -353,6 +137,14 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
             </div>
 
         </div>
+
+        
+        <?php
+
+            require_once('formularios_crear.php');
+        
+        ?>
+
 
         <!-- jQuery, Popper.js, Bootstrap JS -->
         <script src="jquery/jquery-3.3.1.min.js"></script>

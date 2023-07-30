@@ -1,151 +1,320 @@
 <?php
-    session_start();
-    require_once("../../database/connection.php");
-    $db = new Database();
-    $connnection = $db->conectar();
+session_start();
+require_once("../../database/connection.php");
+$db = new Database();
+$connection = $db->conectar();
+$sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
+$sql->execute();
+$usua = $sql->fetch(PDO::FETCH_ASSOC);
+$user_report = $connection->prepare("SELECT * FROM user INNER JOIN type_user INNER JOIN state INNER JOIN gender ON user.id_type_user = type_user.id_type_user AND user.id_gender=gender.id_gender AND user.id_state=state.id_state");
+$user_report->execute();
+$reporte = $user_report->fetch(PDO::FETCH_ASSOC);
+
+$comando = $connection->prepare("SELECT * FROM datetime_entry INNER JOIN user INNER JOIN type_user ON datetime_entry.document = user.document AND user.id_type_user = type_user.id_type_user ORDER BY id_entry  DESC LIMIT 6");
+$comando->execute();
+$resultado = $comando->fetch(PDO::FETCH_ASSOC);
+
+require_once('../../controller/validarSesion.php');
+
+if (isset($_POST['btncerrar'])) {
+    session_destroy();
+    header("Location:../../index.php");
+}
 
 ?>
 <?php
 
-if ((isset ($_POST["MM_update"])) && ($_POST["MM_update"] =="form2"))
+if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
 
-{
+    // DECLARACION DE LOS VALORES DE LAS VARIABLES DEPENDIENDO DEL TIPO DE CAMPO QUE TENGA EN EL FORMULARIO
+    $password = $_POST['password'];
+    $passwordTwo = $_POST['password2'];
 
-        // DECLARACION DE LOS VALORES DE LAS VARIABLES DEPENDIENDO DEL TIPO DE CAMPO QUE TENGA EN EL FORMULARIO
+
+
+    $passwordUser = $connection->prepare("SELECT password FROM user");
+    $passwordUser->execute();
+    $passUser = $passwordUser->fetch(PDO::FETCH_ASSOC);
+
+
+    if ($_POST['password'] == "") {
+        echo '<script>alert("datos vacios no ingreso la nueva clave.");</script>';
+        echo '<script>window.location="contrasena.php"</script>';
+    } elseif ($password !== $passwordTwo) {
+        echo '<script>alert("las contraseñas son diferentes, deben ser iguales.");</script>';
+        echo '<script>window.location="contrasena.php"</script>';
+    } elseif (password_verify($password, $passUser['password'])) {
+        echo '<script>alert("La contraseña ya esta registrada.");</script>';
+        echo '<script>window.location="contrasena.php"</script>';
+    } else {
 
         $docu_user = $_SESSION['id_user'];
-        $encriptaciones=[
-            'cost'=> 15
+        $encriptaciones = [
+            'cost' => 15
         ];
         $contra = password_hash($_POST['password'], PASSWORD_DEFAULT, $encriptaciones);
 
-
-        if ($_POST['password']== "" )
-        {
-            echo '<script>alert("datos vacios no ingreso la nueva clave.");</script>';
-            echo '<script>window.location="contrasena.php"</script>';
-        }
-        else{
-
-            $actu_update = $connnection -> prepare ( "UPDATE user  SET password = '$contra' WHERE document='$docu_user'");
-            $actu_update->execute();
-            $update=$actu_update->fetch(PDO::FETCH_ASSOC);
-            header("Location:confirmacion.php");
-            
-
-        }
+        $actu_update = $connection->prepare("UPDATE user  SET password = '$contra' WHERE document='$docu_user'");
+        $actu_update->execute();
+        $update = $actu_update->fetch(PDO::FETCH_ASSOC);
+        header("Location:confirmacion.php");
+    }
 }
 ?>
-
-
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAMBIO DE CONTRASEÑA|| SIFER-APP</title>
-    <link rel="stylesheet" href="../../controller/CSS/login_style.css">
-    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="main.css">
+
+    <!--datables CSS básico-->
+    <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
+    <!--datables estilo bootstrap 4 CSS-->
+    <link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../../controller/css/custom.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>CAMBIAR CONTRASEÑA || SIFER-APP</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
+    <!----css3---->
+    <link rel="stylesheet" href="../../controller/CSS/custom.css">
+    <!--google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+
+    <!--font awesome con CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
 </head>
 
 <body>
 
-    <video autoplay loop muted poster="../../controller/image/motos_img.png">
-        <source src="../../controller/image/video_motos.mp4">
-    </video>
+    <body>
+        <div class="wrapper">
 
-    <div class="container_all">
-        <div class="ctn-form">
-            <header>
-                <img src="../../controller/image/favicon.png" alt="" class="logo">
-                <h1 class="title"> <span> CAMBIO DE CONTRASEÑA ADMIN</span></h1>
-            </header>
+            <!-------sidebar--design- close----------->
 
-            <form action="" method="POST" autocomplete="off" id="formulario" class="formulario" autocomplete="off">
+            <?php
 
-                <!-- Group: password -->
-                <div class="formulario__grupo" id="grupo__password">
+            require_once('./menu.php');
+            ?>
+
+            <div class="xp-breadcrumbbar text-center">
+                <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Editar</a></li>
+                    <li class="breadcrumb-item active" aria-curent="page">Cuenta</li>
+                </ol>
+            </div>
+        </div>
+        </div>
+
+        <div class="container-fluid mt-4">
+            <div class="col-xs-12">
+                <h1>Cambiar Contraseña</h1>
+                <form method="POST" action="" name="form2" autocomplete="off">
+                    <!-- Group: password -->
+
                     <label for="document" class="formulario__label">Nueva Contraseña</label>
                     <div class="formulario__grupo-input">
-                        <input type="password" autofocus onkeypress="" maxlength="12" oninput="maxlengthNumber(this);" class="formulario__input" name="password" id="password" required placeholder="Ingrese su nueva contraseña">
+                        <input type="password" autofocus maxlength="12" oninput="validarContraseñaInput(this)" class="formulario__input form-control" name="password" id="contraseña" required placeholder="Ingrese su nueva contraseña">
                         <i class="formulario__validacion-estado fas fa-times-circle"></i>
                     </div>
                     <p class="formulario__input-error">La contraseña debe ser de 10 a 12 digitos y pueden tener letras, numeros y guiones bajos.</p>
-                </div>
-                <!-- Group: password2 -->
 
-                <div class="formulario__grupo" id="grupo__password2">
+
+                    <!-- Group: password2 -->
+
+
                     <label for="username" class="formulario__label">Confirmar Contraseña</label>
                     <div class="formulario__grupo-input">
-                        <input type="password" maxlength="12" oninput="maxlengthNumber(this);" class="formulario__input" name="password2" required id="password2" placeholder="Confirme su nueva contraseña">
+                        <input type="password" maxlength="12" oninput="validarContraseñaInput(this)" class="formulario__input" name="password2" required id="contraseña" placeholder="Confirme su nueva contraseña">
                         <i class="formulario__validacion-estado fas fa-times-circle"></i>
                     </div>
                     <p class="formulario__input-error">Ambas contraseñas deben ser iguales para realizar el respectivo cambio de contraseña.</p>
-                </div>
 
-                <input type="submit" name="validar" value="Cambiar contraseña"></input>
-                <input type="hidden" name="MM_update" value="form2">
+                    <div class="form-group mt-3" role="group" aria-label="Button group">
+                        <input type="submit" class="btn btn-info ml-3" name="validar" value="Actualizar"></input>
+                        <input type="hidden" name="MM_update" value="form2">
+                        <a href="index.php" class="btn btn-danger">Cancelar Registro</a>
+                    </div>
 
-            </form>
-            <span class="text-footer"><a href="index.php">Regresar a Menu Principal</a></span>
+                </form>
+            </div>
 
         </div>
-        <div class="ctn-text">
-            <div class="capa"></div>
-            <h1 class="title-description">Cambia tu contraseña <span class="multiple-text"></span><span class="usuario"></h1>
-            <p class="textdescription">Lo que más quieres en el mundo tiene nombre, placa y cilindraje, son parte de nuestro día a día, ningún cuidado es suficiente para demostrarle cuánto las amamos, por eso somos tu mejor eleccion.</p>
-        </div>
-    </div>
 
-    <!-- FUNCION QUE PERMITE INGRESAR SOLO EL NUMERO REQUERIDOS DE VALORES DE ACUERDO AL VALOR DEL MAXLENGTH DEL INPUT -->
+        <!-- INCLUIMOS TODOS LOS FORMULARIOS PARA EL MODULO DE CREAR  -->
+        <?php
 
-    <script>
-        function maxlengthNumber(obj) {
-            if (obj.value.length > obj.maxLength) {
-                obj.value = obj.value.slice(0, obj.maxLength);
-                alert("Debe ingresar solo numeros en el campo y debe ser en un rango de 6 a 10 numeros.");
-            }
-        }
-    </script>
+        require_once('./formularios_crear.php');
 
-    <!-- FUNCION QUE PERMITE INGRESAR SOLO LETRAS EN CADA UNO DE LOS CAMPOS EL CUAL SE INVOCO LA FUNCION EN EL ONKEYPRESS -->
+        ?>
 
-    <script>
-        function multipletext(e) {
-            key = e.keyCode || e.which;
 
-            teclado = String.fromCharCode(key).toLowerCase();
+        <script>
+            function validarContraseñaInput(input) {
+                var contraseña = input.value;
+                var longitudMaxima = 12; // Cambia esto al valor deseado
 
-            letras = "qwertyuiopasdfghjklñzxcvbnm";
+                contraseña = contraseña.replace(/\s/g, ''); // Eliminar espacios en blanco
 
-            especiales = "8-37-38-46-164-46";
-
-            teclado_especial = false;
-
-            for (var i in especiales) {
-                if (key == especiales[i]) {
-                    teclado_especial = true;
-                    break;
+                if (contraseña.length > longitudMaxima) {
+                    input.value = contraseña.substring(0, longitudMaxima); // Limitar la longitud
+                } else {
+                    input.value = contraseña; // Asignar el valor actualizado
                 }
             }
+        </script>
+        <!-- jQuery, Popper.js, Bootstrap JS -->
+        <script src="jquery/jquery-3.3.1.min.js"></script>
+        <script src="popper/popper.min.js"></script>
+        <script src="bootstrap/js/bootstrap.min.js"></script>
 
-            if (letras.indexOf(teclado) == -1 && !teclado_especial) {
-                return false;
-                alert("Debe ingresar solo numeros en el campo y debe ser en un rango de 6 a 10 numeros.");
+        <!-- datatables JS -->
+        <script type="text/javascript" src="datatables/datatables.min.js"></script>
+        <script>
+            function maxlengthNumber(obj) {
+
+                if (obj.value.length > obj.maxLength) {
+                    obj.value = obj.value.slice(0, obj.maxLength);
+                    alert("Debe ingresar solo el numeros de digitos requeridos");
+                }
             }
-        }
-    </script>
+        </script>
 
-    <!-- TYPED JS -->
-    <script src="https://unpkg.com/typed.js@2.0.132/dist/typed.umd.js"></script>
-    <script src="../../controller/JS/main.js"></script>
 
-    <!-- VALIDACION DE FORMULARIO -->
-    <script src="../../controller/JS//formulario.js"></script>
-    <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
-</body>
+        <script>
+            function maxcelNumber(obj) {
+
+                if (obj.value.length > obj.maxLength) {
+                    obj.value = obj.value.slice(0, obj.maxLength);
+                    alert("Debe ingresar solo 10 numeros.");
+                }
+            }
+        </script>
+        <!-- FUNCION DE JAVASCRIPT QUE PERMITE INGRESAR SOLO LETRAS -->
+
+        <script>
+            function multipletext(e) {
+                key = e.keyCode || e.which;
+
+                teclado = String.fromCharCode(key).toLowerCase();
+
+                letras = "qwertyuiopasdfghjklñzxcvbnm123456789";
+
+                especiales = "8-37-38-46-164-46";
+
+                teclado_especial = false;
+
+                for (var i in especiales) {
+                    if (key == especiales[i]) {
+                        teclado_especial = true;
+                        alert("Debe ingresar solo letras y espacios en el campo");
+
+                        break;
+                    }
+                }
+
+                if (letras.indexOf(teclado) == -1 && !teclado_especial) {
+                    return false;
+                    alert("Debe ingresar solo letras y espacios en el campo");
+                }
+            }
+        </script>
+
+        <script>
+            function solonumeros(evt) {
+                if (window.event) {
+                    keynum = evt.keyCode;
+                } else {
+                    keynum = evt.wich;
+                }
+            }
+        </script>
+        <!-- para usar botones en datatables JS -->
+        <script src="datatables/Buttons-1.5.6/js/dataTables.buttons.min.js"></script>
+        <script src="datatables/JSZip-2.5.0/jszip.min.js"></script>
+        <script src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>
+        <script src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>
+        <script src="datatables/Buttons-1.5.6/js/buttons.html5.min.js"></script>
+
+        <!-- código JS propìo-->
+        <script type="text/javascript" src="main.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $(".xp-menubar").on('click', function() {
+                    $("#sidebar").toggleClass('active');
+                    $("#content").toggleClass('active');
+                });
+
+                $('.xp-menubar,.body-overlay').on('click', function() {
+                    $("#sidebar,.body-overlay").toggleClass('show-nav');
+                });
+
+            });
+        </script>
+
+        <!-- FUNCION QUE PERMITE INGRESAR SOLO EL NUMERO REQUERIDOS DE VALORES DE ACUERDO AL VALOR DEL MAXLENGTH DEL INPUT -->
+
+        <script>
+            function maxlengthNumber(obj) {
+                if (obj.value.length > obj.maxLength) {
+                    obj.value = obj.value.slice(0, obj.maxLength);
+                    alert("Debe ingresar solo numeros en el campo y debe ser en un rango de 6 a 10 numeros.");
+                }
+            }
+        </script>
+
+        <!-- FUNCION QUE PERMITE INGRESAR SOLO LETRAS EN CADA UNO DE LOS CAMPOS EL CUAL SE INVOCO LA FUNCION EN EL ONKEYPRESS -->
+
+        <script>
+            function multipletext(e) {
+                key = e.keyCode || e.which;
+
+                teclado = String.fromCharCode(key).toLowerCase();
+
+                letras = "qwertyuiopasdfghjklñzxcvbnm";
+
+                especiales = "8-37-38-46-164-46";
+
+                teclado_especial = false;
+
+                for (var i in especiales) {
+                    if (key == especiales[i]) {
+                        teclado_especial = true;
+                        break;
+                    }
+                }
+
+                if (letras.indexOf(teclado) == -1 && !teclado_especial) {
+                    return false;
+                    alert("Debe ingresar solo numeros en el campo y debe ser en un rango de 6 a 10 numeros.");
+                }
+            }
+        </script>
+
+        <!-- TYPED JS -->
+        <script src="https://unpkg.com/typed.js@2.0.132/dist/typed.umd.js"></script>
+        <script src="../../controller/JS/main.js"></script>
+
+        <!-- VALIDACION DE FORMULARIO -->
+        <script src="../../controller/JS/formulario.js"></script>
+        <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
+    </body>
 
 </html>

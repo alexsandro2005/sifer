@@ -5,7 +5,7 @@ require_once("../../controller/validarSesion.php");
 $db = new Database();
 $connection = $db->conectar();
 
-$sentencia = $connection->query("SELECT ventas.total,ventas.fecha, ventas.id,ventas.fecha_fin,user.name,motorcycles.placa,documentos.nombre,GROUP_CONCAT(documentos.codigo, '..',documentos.nombre, '..', documentos.nombre SEPARATOR '__') AS documentos FROM ventas INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = ventas.id INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=ventas.document INNER JOIN motorcycles ON  motorcycles.placa=ventas.placa GROUP BY ventas.id ORDER BY ventas.id;");
+$sentencia = $connection->query("SELECT ventas.total, ventas.fecha, ventas.fecha_fin, ventas.id,user.name,motorcycles.placa,GROUP_CONCAT(productos.codigo, '..',  productos.name_pro,'..', productos_vendidos.existencia, '..', productos.precio SEPARATOR '__') AS productos, GROUP_CONCAT(services.code_service, '..', services.service,'..', servicios_vendidos.existencia, '..', services.costo_service SEPARATOR '__') AS servicios, GROUP_CONCAT(documentos.codigo, '..', documentos.nombre,'..', documentos.precio  SEPARATOR'__')AS documentos FROM ventas INNER JOIN productos_vendidos ON productos_vendidos.id_venta = ventas.id INNER JOIN productos ON productos.id = productos_vendidos.id_producto INNER JOIN user ON user.document=ventas.document INNER JOIN motorcycles ON  motorcycles.placa=ventas.placa LEFT JOIN servicios_vendidos ON servicios_vendidos.id_venta = ventas.id LEFT JOIN services ON services.code_service = servicios_vendidos.id_servicio LEFT JOIN documentos_vendidos ON documentos_vendidos.id_venta = ventas.id LEFT JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento GROUP BY ventas.id ORDER BY ventas.id;");
 $ventas = $sentencia->fetchAll(PDO::FETCH_OBJ);
 
 
@@ -36,7 +36,7 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <title>VENTAS DOCUMENTOS || SIFER-APP</title>
+    <title>VENTAS COMPLETAS || SIFER-APP</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
     <!----css3---->
@@ -135,7 +135,9 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
                                 <th>Fecha</th>
                                 <th>Nombre</th>
                                 <th>Placa</th>
+                                <th>Productos vendidos</th>
                                 <th>Documentos vendidos</th>
+                                <th>Servicios vendidos</th>
                                 <th>Total</th>
                                 <th>Ticket</th>
                                 <th>Eliminar</th>
@@ -148,6 +150,31 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
                                     <td><?php echo $venta->fecha ?></td>
                                     <td><?php echo $venta->name ?></td>
                                     <td><?php echo $venta->placa ?></td>
+
+                                    <td>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Código</th>
+                                                    <th>Nombre del producto</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach (explode("__", $venta->productos) as $productosConcatenados) {
+                                                    $producto = explode("..", $productosConcatenados)
+                                                ?>
+                                                    <tr>
+                                                        <td><?php echo $producto[0] ?></td>
+                                                        <td><?php echo $producto[1] ?></td>
+                                                        <td><?php echo $producto[2] ?></td>
+                                                        <td><?php echo $producto[3] ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </td>
 
                                     <td>
                                         <table class="table table-bordered">
@@ -172,7 +199,30 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
                                         </table>
                                     </td>
 
-
+                                    <td>
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Código</th>
+                                                    <th>Nombre del servicio</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Subtotal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach (explode("__", $venta->servicios) as $serviciosConcatenados) {
+                                                    $servicio = explode("..", $serviciosConcatenados)
+                                                ?>
+                                                    <tr>
+                                                        <td><?php echo $servicio[0] ?></td>
+                                                        <td><?php echo $servicio[1] ?></td>
+                                                        <td><?php echo $servicio[2] ?></td>
+                                                        <td><?php echo $servicio[3] ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </td>
                                     <td><?php echo $venta->total ?></td>
                                     <td><a class="btn btn-info" href="<?php echo "imprimirTicketCompleto.php?id=" . $venta->id ?>" style="color:white;">Facturar <i class="fa fa-print"></i></a></td>
                                     <td><a class="btn btn-danger" href="<?php echo "eliminarVenta.php?id=" . $venta->id ?>" style="color:white;">Eliminar <i class="fa fa-trash"></i></a></td>

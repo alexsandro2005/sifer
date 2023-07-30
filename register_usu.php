@@ -5,7 +5,9 @@ require_once("database/connection.php");
 $database = new Database();
 // VARIABLE QUE CONTIENE LA CONEXION A LA BASE DE DATOS SIFER-APP
 $connection = $database->conectar();
-// CONSULTA SQL PARA INVOCAR LOS TIPOS DE USUARIO REGISTRADOS
+// TRAEMOS LA FECHA Y HORA ACTUAL DE COLOMBIA
+
+date_default_timezone_set('America/Bogota');
 
 // CONSULTA SQL PARA INVOCAR LOS TIPOS DE GENERO
 $select_gender = $connection->prepare("SELECT * FROM gender");
@@ -45,17 +47,19 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
         // SI SE CUMPLE LA CONSULTA ES PORQUE EL USUARIO YA EXISTE
         echo '<script> alert ("// Estimado Usuario, los datos ingresados ya se encuentran registrados. //");</script>';
         echo '<script> window.location= "register_usu.php"</script>';
-    } else if ($document_user == "" || $name_user == "" || $surname == ""  || $username == "" || $user_password == "" || $telephone == "" || $email == "" || $type_user == "" || $id_gender == "" || $datetime == "" || $checkbox == ""  || $id_state == "") {
+    } elseif ($document_user == "" || $name_user == "" || $surname == ""  || $username == "" || $user_password == "" || $telephone == "" || $email == "" || $type_user == "" || $id_gender == "" || $datetime == "" || $checkbox == ""  || $id_state == "") {
         // CONDICIONAL DEPENDIENDO SI EXISTEN ALGUN CAMPO VACIO EN EL FORMULARIO DE LA INTERFAZ
         echo '<script> alert ("Estimado Usuario, Existen Datos Vacios En El Formulario");</script>';
         echo '<script> window.location= "register_usu.php"</script>';
     } else {
-        $register_user = $connection->prepare("INSERT INTO user(document,name,surname,date_user,username,telephone,email,id_type_user,id_gender,password,id_state) VALUES('$document_user','$name_user','$surname','$datetime' ,'$username','$telephone','$email','$type_user','$id_gender','$user_password','$id_state')");
+        $register_user = $connection->prepare("INSERT INTO user(document,name,surname,telephone,email,date_user,id_type_user,id_gender,password,username,id_state,datetime_reg,confirmacion) VALUES('$document_user','$name_user','$surname','$telephone','$email','$datetime','$type_user','$id_gender','$user_password','$username','$id_state',NOW(),'$checkbox')");
         $register_user->execute();
+        $register = $register_user->fetchAll(PDO::FETCH_ASSOC);
         echo '<script>alert ("Registro Exitoso ¡Bienvenido/a!, Puede Iniciar Sesion.");</script>';
         echo '<script>window.location="index.php"</script>';
     }
 }
+
 ?>
 <!-- ESTRUCTURA DEL FORMULARIO DE REGISTRO HTML -->
 
@@ -76,7 +80,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
 </head>
 
-<body onload="formreg.document.focus()">
+<body onload="limitarFechas()">
 
     <video autoplay loop muted poster="controller/image/poster.png">
         <source src="controller/image/video_motos.mp4" type="video/mp4">
@@ -94,7 +98,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
             <div class="formulario__grupo" id="grupo__document">
                 <label for="document" class="formulario__label">Numero de documento</label>
                 <div class="formulario__grupo-input">
-                    <input type="tel" minlength="6" onkeypress="return(multiplenumber(event));" maxlength="10" oninput="maxlengthNumber(this);" class="formulario__input" name="document" title="Numero de documento" id="document" required placeholder="Ingrese su numero de documento">
+                    <input type="tel" minlength="6" onkeypress="return(multiplenumber(event));" maxlength="10" oninput="maxlengthNumber(this);" autofocus class="formulario__input" name="document" title="Numero de documento" id="document" required placeholder="Ingrese su numero de documento">
                     <i class="formulario__validacion-estado fas fa-times-circle"></i>
                 </div>
                 <p class="formulario__input-error">Debe ingresar solo numeros y el numero de documento debe ser de 6 a 10 numeros.</p>
@@ -105,10 +109,10 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
             <div class="formulario__grupo" id="grupo__name">
                 <label for="name" class="formulario__label">Nombre Completo</label>
                 <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" minlength="5" oninput="maxlengthNumber(this);" onkeypress="return(textspace(event));" maxlength="20" name="name" required id="name" placeholder="Ingrese sus nombres">
+                    <input type="text" class="formulario__input" minlength="5" oninput="soloLetrasEspacios(event)" onkeypress="return(textspace(event));" maxlength="20" name="name" required id="name" placeholder="Ingrese sus nombres">
                     <i class="formulario__validacion-estado fas fa-times-circle"></i>
                 </div>
-                <p class="formulario__input-error">Debe ingresar solo letras, y debe indicar su nombres completos.</p>
+                <p class="formulario__input-error">Debe ingresar solo letras, y debe indicar su nombres completo o preferiblemente su primer nombre.</p>
             </div>
 
             <!-- Container: Apellidos -->
@@ -116,9 +120,10 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
             <div class="formulario__grupo" id="grupo__surname">
                 <label for="surname" class="formulario__label">Apellidos Completos</label>
                 <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" onkeypress="return(textspace(event));" pattern="[A-Za-z]+" maxlength="20" minlength="5" name="surname" required id="surname" placeholder="Ingrese sus apellidos">
+                    <input type="text" class="formulario__input" oninput="soloLetrasEspacios(event)" onkeypress="return(textspace(event));" pattern="[A-Za-z]+" maxlength="20" minlength="5" name="surname" required id="surname" placeholder="Ingrese sus apellidos">
                     <i class="formulario__validacion-estado fas fa-times-circle"></i>
                 </div>
+                <p class="formulario__input-error">Debe ingresar solo letras, y debe indicar sus apellidos completos o preferiblemente su primer apellido.</p>
             </div>
 
             <!-- Container: Username -->
@@ -128,7 +133,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                     <input type="text" minlength="6" maxlength="12" onkeypress="return(textguions(event));" oninput="(maxlengthNumber(this))" class="formulario__input" name="username" required id="username" placeholder="Ingrese su nombre de usuario">
                     <i class="formulario__validacion-estado fas fa-times-circle"></i>
                 </div>
-                <p class="formulario__input-error">El usuario tiene que ser de 10 a 12 dígitos y solo puede contener numeros, letras y guion bajo.</p>
+                <p class="formulario__input-error">El usuario tiene que ser de 10 a 12 dígitos y solo puede contener numeros, letras y guiones bajos.</p>
             </div>
 
             <!-- Container: Password -->
@@ -162,13 +167,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <p class="formulario__input-error">Debe ingresar su numero telefonico y solo se permite ingreso de diez datos numericos.</p>
             </div>
 
-            <!-- Container: Terminos y Condiciones -->
-            <div class="formulario__grupo formulario__checkbox" id="grupo__terminos">
-                <label class="formulario__label">
-                    <input type="checkbox" name="terminos" id="terminos">
-                    Acepto los Terminos y Condiciones <br> para el uso de mis datos
-                </label>
-            </div>
+
 
             <!-- Container: email -->
             <div class="formulario__grupo" id="grupo__email">
@@ -186,7 +185,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
             <div class="formulario__grupo" id="grupo__datetime">
                 <label for="telephone" class="formulario__label">Fecha de nacimiento</label>
                 <div class="formulario__grupo-input">
-                    <input type="date" class="formulario__input" value="fechaCumple()" min="1940-01-01" name="datetime" required id="fecha-nacimiento" placeholder="Ingrese su fecha de nacimiento">
+                    <input type="date" class="formulario__input" value="fechaCumple()" min="1940-01-01" name="datetime" required id="fecha" placeholder="Ingrese su fecha de nacimiento">
                     <i class="formulario__validacion-estado fas fa-times-circle"></i>
                 </div>
                 <p class="formulario__input-error">Debe ingresar su fecha de nacimiento</p>
@@ -219,6 +218,14 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <input class="cajas" type="hidden" value="2" name="id_state" placeholder="Ingrese su estado">
             </div>
 
+            <!-- Container: Terminos y Condiciones -->
+            <div class="formulario__grupo formulario__checkbox" id="grupo__terminos">
+                <label class="formulario__label">
+                    <input type="checkbox" value="1" required name="terminos" id="terminos">
+                    Acepto los Terminos y Condiciones <br> para el uso de mis datos
+                </label>
+            </div>
+
 
 
             <div class="formulario__grupo formulario__grupo-btn-enviar">
@@ -234,6 +241,29 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
     <script src="controller/js/fontawesome.js"></script>
     <script src="controller/js/password.js"></script>
 
+
+    <!-- FUNCION PARA VALIDAR LA FECHA DE CUMPLEAÑOS -->
+
+    <script>
+        // VARIABLE QUE TRAERA EL CAMPO CON ID UNICO PARA IMPLEMENTAR LA FUNCION
+        var fechaInput = document.getElementById('fecha');
+        // MEDIANTE UNA VARIABLE TRAEMOS LA FECHA ACTUAL
+        var fechaMaxima = new Date();
+
+        // GENERAMOS LOS PROMEDIO DE FECHA
+        fechaMaxima.setFullYear(fechaMaxima.getFullYear() - 18); // RESTAMOS 18 AÑOS A LA FECHA ACTUAL
+        var fechaMinima = new Date();
+        fechaMinima.setFullYear(fechaMinima.getFullYear() - 80); // RESTAMOS 80 AÑOS A LA FECHA ACTUAL
+
+        // FORMATEAMOS LAS FECHAS MINIMA Y MAXIMA EN FORMARO DE FECHA ADECUADO (YYYY-MM-DD)
+        var fechaMaximaFormateada = fechaMaxima.toISOString().split('T')[0];
+        var fechaMinimaFormateada = fechaMinima.toISOString().split('T')[0];
+
+        // ESTABLECEMOS LOS ATRIBUTOS MIN Y MAZ DE ENTRADA DE FECHA
+
+        fechaInput.setAttribute('min', fechaMinimaFormateada);
+        fechaInput.setAttribute('max', fechaMaximaFormateada);
+    </script>
 </body>
 
 </html>

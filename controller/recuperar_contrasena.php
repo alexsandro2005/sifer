@@ -1,66 +1,120 @@
 <?php
-    session_start();
-    require_once("../database/connection.php");
-    $db = new Database();
-    $con = $db->conectar();
+session_start();
+require_once("../database/connection.php");
+$db = new Database();
+$connection = $db->conectar();
 
 ?>
 <?php
 
-if ((isset ($_POST["MM_update"])) && ($_POST["MM_update"] =="form2"))
+if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
+    // Ensure that $acumulador is initialized
+    $acumulador = 0;
 
-{
+    // DECLARATION OF THE VALUES OF THE VARIABLES DEPENDING ON THE FIELD TYPE IN THE FORM
+    $password = $_POST['password'];
+    $passwordTwo = $_POST['password2'];
+    $docu_user = $_SESSION['id_user'];
 
-        // DECLARACION DE LOS VALORES DE LAS VARIABLES DEPENDIENDO DEL TIPO DE CAMPO QUE TENGA EN EL FORMULARIO
-        $encriptaciones=[
-            'cost'=> 15
-        ];
-        $contra = password_hash($_POST['password'], PASSWORD_DEFAULT, $encriptaciones) ;
+    // Use prepared statements to avoid SQL injection
+    $passwordUser = $connection->prepare("SELECT password FROM user WHERE document = :docu_user");
+    $passwordUser->bindParam(':docu_user', $docu_user);
+    $passwordUser->execute();
+    $passUser = $passwordUser->fetch(PDO::FETCH_ASSOC);
 
-        if ($_POST['password']== "" )
-        {
-            echo '<script>alert("datos vacios no ingreso la clave");</script>';
-            echo '<script>window.location="recuperar_contrasena.php"</script>';
+    if ($_POST['password'] == "" || $_POST['password2'] == "") {
+        echo '<script>alert("datos vacios no ingreso la nueva clave.");</script>';
+        echo '<script>window.location="recuperar_contrasena.php"</script>';
+        exit(); // Stop further execution
+    } elseif ($password !== $passwordTwo) {
+        echo '<script>alert("las contraseñas son diferentes, deben ser iguales.");</script>';
+        echo '<script>window.location="recuperar_contrasena.php"</script>';
+        exit(); // Stop further execution
+    } elseif (password_verify($password, $passUser['password'])) {
+        echo '<script>alert("La contraseña ya fue registrada anteriormente.");</script>';
+        echo '<script>window.location="recuperar_contrasena.php"</script>';
+        exit(); // Stop further execution
+    } elseif (!empty($password)) {
+
+        $passwordsTrigger = $connection->prepare("SELECT * FROM trigger_user WHERE document = :docu_user GROUP BY document HAVING COUNT(*) <= 5");
+        $passwordsTrigger->bindParam(':docu_user', $docu_user);
+        $passwordsTrigger->execute();
+        $passTrigger = $passwordsTrigger->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($passTrigger as $passAuth) {
+
+            if ((password_verify($password,$passAuth['password']))) {
+
+                $acumulador += 1;
+
+                if ($acumulador > 0) {
+                    echo '<script>alert("la contraseña ya fue registrada anteriormente, ingresa otra por favor");</script>';
+                    echo '<script>window.location="recuperar_contrasena.php"</script>';
+                    exit(); // Stop further execution
+                }else {
+                    // Hash the password
+                    $bcrypt = ['cost' => 15];
+                    $contra = password_hash($password, PASSWORD_DEFAULT, $bcrypt);
+
+                    // Update the password in the database
+                    $actu_update = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
+                    $actu_update->bindParam(':contra', $contra);
+                    $actu_update->bindParam(':docu_user', $docu_user);
+                    $actu_update->execute();
+                    echo '<script>alert("la contraseña ha sido actualizada correctamente.");</script>';
+                    echo '<script>window.location="../index.php"</script>';
+                    exit(); // Stop further execution after redirect
+                }
+            } else {
+                // encriptacion de la contraseña
+                $encriptaciones = ['cost' => 15];
+                $contra = password_hash($password, PASSWORD_DEFAULT, $encriptaciones);
+
+                // actualizacion de la contraseña en la base de datos
+                $update_pass = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
+                $update_pass->bindParam(':contra', $contra);
+                $update_pass->bindParam(':docu_user', $docu_user);
+                $update_pass->execute();
+                echo '<script>alert("la contraseña ha sido actualizada correctamente.");</script>';
+                echo '<script>window.location="../index.php"</script>';
+                exit();
+            }
         }
-        else{
+    } else {
+        // encriptacion de la contraseña
+        $encriptar = ['cost' => 15];
+        $contraseña = password_hash($password, PASSWORD_DEFAULT, $encriptar);
 
-            $document= $_SESSION['id_user'];
-            
-            $actu_update = $con -> prepare ( "UPDATE user  SET password = '$contra' WHERE document='$document'");
-            $actu_update->execute();
-            $update=$actu_update->fetch(PDO::FETCH_ASSOC);
-            echo '<script>alert ("Cambio de contraseña exitoso, puede iniciar sesion.");</script>';
-            echo '<script>window.location="../index.php"</script>';
-
-        }
+        // Update the password in the database
+        $update_pass = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
+        $update_pass->bindParam(':contra', $contraseña);
+        $update_pass->bindParam(':docu_user', $docu_user);
+        $update_pass->execute();
+        echo '<script>alert("la contraseña ha sido actualizada correctamente aprendiz.");</script>';
+        echo '<script>window.location="../index.php"</script>';
+        exit(); 
+    }
 }
 ?>
 
 <?php
-if (isset( $_POST["inicio"]))
-{   
+if (isset($_POST["inicio"])) {
     // Esta linea me sirve para imprimir el valor que recibe la variable cuando el usuario digita en el fomulario
-    $documento=$_POST["document"];
-    $username=$_POST["username"];
+    $documento = $_POST["document"];
+    $username = $_POST["username"];
     // Estas lineas sirven para realizar la consulta a la base de datos
-    $sql=$con ->prepare("SELECT * FROM user WHERE document = '$documento' AND username='$username'");
-    $sql -> execute();
+    $sql = $connection->prepare("SELECT * FROM user WHERE document = '$documento' AND username='$username'");
+    $sql->execute();
     // Esta linea almacena la consulta a la base datos
-    $fila=$sql -> fetch(PDO::FETCH_ASSOC);
+    $fila = $sql->fetch(PDO::FETCH_ASSOC);
 
-    if($fila)
-    {
+    if ($fila) {
         // Esta linea sirve para mirar la consulta al archivo donde se encuentra la variable  $fila
-        $_SESSION['id_user']=$fila['document'];
+        $_SESSION['id_user'] = $fila['document'];
+    } else {
+        echo '<script> alert ("Estimado usuario el documento o nombre de usuario se valida como no registrado.")</script>';
+        echo '<script> window.location="cambiar_contrasena.php"</script>';
     }
-
-    else
-    {
-    echo '<script> alert ("Estimado usuario el documento o nombre de usuario se valida como no registrado.")</script>';
-    echo '<script> window.location="cambiar_contrasena.php"</script>';
-    }
-
-
 }
 
 ?>
@@ -68,6 +122,7 @@ if (isset( $_POST["inicio"]))
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -91,7 +146,7 @@ if (isset( $_POST["inicio"]))
                 <h1 class="title"> <span>NUEVO CAMBIO DE CONTRASEÑA</span></h1>
             </header>
 
-            <form action="../controller/recuperar_contrasena.php" method="POST" autocomplete="off" id="formulario" class="formulario" autocomplete="off">
+            <form action="../controller/recuperar_contrasena.php" method="POST" id="formulario" class="formulario" autocomplete="off">
 
                 <!-- Group: password -->
                 <div class="formulario__grupo" id="grupo__password">
@@ -119,7 +174,6 @@ if (isset( $_POST["inicio"]))
             </form>
             <span class="text-footer"><a href="../index.php">Regresar a Pagina Principal</a></span>
             <span class="text-footer">¿Aun no se encuentra registrado?<a href="../register_usu.php"> Registrarme</a></span>
-
 
         </div>
         <div class="ctn-text">

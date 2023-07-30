@@ -5,12 +5,22 @@ require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
 
+
+require_once('../../controller/validarSesion.php');
+
+if (isset($_POST['btncerrar'])) {
+    session_destroy();
+    header("Location:../../index.php");
+}
+
 $actu_documento = $_GET['id_documento'];
 
-
-$select_docu=$connection->prepare("SELECT * FROM documentos WHERE id_documento = '$actu_documento'");
+$sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
+$sql->execute();
+$usua = $sql->fetch(PDO::FETCH_ASSOC);
+$select_docu = $connection->prepare("SELECT * FROM documentos WHERE id_documento = '$actu_documento'");
 $select_docu->execute();
-$documento_data=$select_docu->fetch(PDO::FETCH_ASSOC);
+$documento_data = $select_docu->fetch(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -29,7 +39,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
     // CONDICIONALES DEPENDIENDO EL RESULTADO DE LA CONSULTA
     if ($register_validation) {
 
-        $update=$connection->prepare("UPDATE documentos SET id_documento='$id_documento', nombre='$nombre', precio='$precio' WHERE id_documento='$actu_documento'");
+        $update = $connection->prepare("UPDATE documentos SET id_documento='$id_documento', nombre='$nombre', precio='$precio' WHERE id_documento='$actu_documento'");
         $update->execute();
         // SI SE CUMPLE LA CONSULTA ES PORQUE EL USUARIO YA EXISTE  
         echo '<script> alert ("//Estimado Usuario la actualizacion se ha realizado con exito //");</script>';
@@ -51,73 +61,119 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
 
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <title>ACTUALIZAR DOCUMENTO LEGAL || SIFER-APP</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="main.css">
+
+    <!--datables CSS básico-->
+    <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
+    <!--datables estilo bootstrap 4 CSS-->
+    <link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../../controller/css/custom.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>LISTA DE USUARIOS</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
+    <!----css3---->
+    <link rel="stylesheet" href="../../controller/CSS/custom.css">
+    <!--google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="../../controller/CSS/crear_service.css">
-    <link rel="shortcut icon" href="controller/image/SENA.png" type="image/x-icon">
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+
+    <!--font awesome con CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
 </head>
 
-<body onload="formreg.id_modelos.focus()">
+<body>
 
 
-    <video autoplay loop muted poster="../../controller/image/motos_img.png">
-        <source src="../../controller/image/video_motos.mp4" type="video/mp4">
-    </video>
+
+    <div class="wrapper">
+        <?php
+
+        require_once('menu.php');
+        ?>
+
+
+        <div class="xp-breadcrumbbar text-center">
+            <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Actualizar</a></li>
+                <li class="breadcrumb-item active" aria-curent="page">Documento</li>
+            </ol>
+        </div>
+
+    </div>
+    </div>
 
     <!-- FORM CONTAINER -->
-    <main>
-        <div class="container_title">
-            <header>ACTUALIZAR DOCUMENTO</header>
+    <div class="container-fluid">
+        <div class="col-xs-12 mt-4">
+
+
+            <form method="POST" name="formreg" action="" autocomplete="off">
+
+                <!-- Container: Code Document -->
+
+                <div class="form-group">
+                    <label for="document" class="formulario__label">Codigo de documento Legal</label>
+                    <div class="formulario__grupo-input">
+                        <input autofocus type="number" autofocus value="<?php echo $actu_documento ?>" readonly maxlength="3" oninput="maxlengthNumber(this);" class="formulario__input" name="id_documento" id="id" required placeholder="Ingrese el codigo del documento legal">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El codigo de modelo debe contener solo 3 numeros</p>
+                </div>
+
+                <div class="form-group">
+                    <!-- Container: Document -->
+
+                    <label for="username" class="formulario__label">Nombre Documento Legal</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" class="formulario__input" value="<?php echo $documento_data['nombre'] ?>" readonly maxlength="20" oninput="mayusculas();" name="nombre" required id="marca" placeholder="Ingrese nombre">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">solo se permiten letras y maximo de 20 digitos.</p>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="formulario__grupo" id="grupo__modelos">
+                        <label for="username" class="formulario__label">Precio</label>
+                        <div class="formulario__grupo-input">
+                            <input type="number" class="formulario__input" maxlength="6" value="<?php echo $documento_data['precio'] ?>" oninput="maxlengthNumber(this)" name="precio" required id="precio" placeholder="Ingrese el precio ">
+                            <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                        </div>
+                        <p class="formulario__input-error">El nuevo modelo debe contener solo 4 numeros</p>
+                    </div>
+                </div>
+
+                <div class=" mb-3">
+                    <input type="submit" name="validar" value="Actualizar" class="btn btn-warning"></input>
+                    <input type="hidden" name="MM_insert" value="formreg">
+                    <a href="index.php" class="btn btn-danger">Regresar</a>
+                </div>
+            </form>
+
+
         </div>
-        <form method="POST" name="formreg" action="" autocomplete="off" id="formulario" class="formulario">
-
-            <!-- Container: Code Document -->
-            <div class="formulario__grupo" id="grupo__id">
-                <label for="document" class="formulario__label">Codigo de documento Legal</label>
-                <div class="formulario__grupo-input">
-                    <input autofocus type="number" value="<?php echo $actu_documento?>" readonly maxlength="3" oninput="maxlengthNumber(this);" class="formulario__input" name="id_documento" id="id" required placeholder="Ingrese el codigo del documento legal">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                </div>
-                <p class="formulario__input-error">El codigo de modelo debe contener solo 3 numeros</p>
-            </div>
-
-            <!-- Container: Document -->
-            <div class="formulario__grupo" id="grupo__marca">
-                <label for="username" class="formulario__label">Nombre Documento Legal</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" value="<?php echo $documento_data['nombre']?>" readonly maxlength="20" oninput="mayusculas();" name="nombre" required id="marca" placeholder="Ingrese nombre">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                </div>
-                <p class="formulario__input-error">solo se permiten letras y maximo de 20 digitos.</p>
-            </div>
-
-            <!-- Container: Document Precio-->
-            <div class="formulario__grupo" id="grupo__modelos">
-                <label for="username" class="formulario__label">Precio</label>
-                <div class="formulario__grupo-input">
-                    <input type="number" class="formulario__input" maxlength="6" value="<?php echo $documento_data['precio']?>" oninput="maxlengthNumber(this)" name="precio" required id="precio" placeholder="Ingrese el precio ">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                </div>
-                <p class="formulario__input-error">El nuevo modelo debe contener solo 4 numeros</p>
-            </div>
-
-            <div class="formulario__grupo formulario__grupo-btn-enviar">
-                <input type="submit" name="validar" value="Actualizar" class="formulario__btn"></input>
-                <input type="hidden" name="MM_insert" value="formreg">
-                <a href="index.php" class="return">Regresar</a>
-            </div>
-        </form>
-    </main>
+    </div>
 
     <script>
         function maxlengthNumber(obj) {

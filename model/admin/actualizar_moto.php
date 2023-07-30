@@ -1,11 +1,11 @@
 <?php
-// SE DEBE INCLUIR EL ARCHIVO DE CONEXION A LA BASE DE DATOS
+session_start();
 require_once("../../database/connection.php");
-// VARIABLES QUE CONTIENE LA CLASE CON LOS PARAMETROS DE CONEXION A LA BASE DE DATOS
-$database = new Database();
-// VARIABLE QUE CONTIENE LA CONEXION A LA BASE DE DATOS SIFER-APP
-$connection = $database->conectar();
-
+$db = new Database();
+$connection = $db->conectar();
+$sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
+$sql->execute();
+$usua = $sql->fetch(PDO::FETCH_ASSOC);
 
 // CONSULTA SQL PARA INVOCAR TODAS LAS MARCAS REGISTRADAS EN LA BASE DE DATOS
 $select_marca = $connection->prepare("SELECT * FROM marcas_motos");
@@ -65,15 +65,14 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
     $moto_cilindraje = $_POST['cilindraje'];
     $moto_servicio = $_POST['servicio'];
 
-    $db_validation = $connection->prepare("SELECT * FROM motorcycles WHERE placa='". $_GET['placa'] ."'");
+    $db_validation = $connection->prepare("SELECT * FROM motorcycles WHERE placa='" . $_GET['placa'] . "'");
     $db_validation->execute();
     $update_validation = $db_validation->fetchAll();
     if ($update_validation) {
-        $moto_actualizacion = $connection->prepare("UPDATE motorcycles SET km = '$km_user', id_color = '$color_user', id_carroceria = '$moto_carroceria', id_combustible = '$moto_combus', id_servicio_moto = '$moto_servicio' WHERE placa = '". $_GET['placa'] ."'");
+        $moto_actualizacion = $connection->prepare("UPDATE motorcycles SET km = '$km_user', id_color = '$color_user', id_carroceria = '$moto_carroceria', id_combustible = '$moto_combus', id_servicio_moto = '$moto_servicio' WHERE placa = '" . $_GET['placa'] . "'");
         $moto_actualizacion->execute();
         echo '<script> alert ("Estimado Usuario, Los cambios fueron realizados correctamente");</script>';
-        echo '<script> window.location= "index.php"</script>';
-
+        echo '<script> window.location= "list_motos.php"</script>';
     }
     // CONDICIONAL PARA VALIDAR SI EXISTEN RESULTADOS VACIOS AL MOMENTO DE ENVIAR LA INFORMACION DADA EN EL FORMULARIO
 
@@ -82,191 +81,239 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
         echo '<script> alert ("Estimado Usuario, Existen Datos Vacios En El Formulario");</script>';
         echo '<script> windows.location= "actualizar_moto.php"</script>';
     } else {
-    
-    
     }
 }
 ?>
 <!-- ESTRUCTURA DEL FORMULARIO DE REGISTRO HTML -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <title>ACTUALIZACION DE MOTO || SIFER-APP</title>
-    <link rel="stylesheet" href="../../controller/CSS/crear_moto.css">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="main.css">
+
+    <!--datables CSS básico-->
+    <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
+    <!--datables estilo bootstrap 4 CSS-->
+    <link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../../controller/css/custom.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="./css/2.css">
+    <link rel="stylesheet" href="./css/estilo.css">
+    <title>REGISTRO DE CLIENTE || SIFER-APP</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!----css3---->
+    <link rel="stylesheet" href="css/custom.css">
+
+    <!--google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    <!----css3---->
+    <link rel="stylesheet" href="../../controller/CSS/custom.css">
+    <!--google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="../../controller/CSS/select2.min.css">
     <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
-    <script src="../../controller/JS/select2.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="../../controller/CSS/icons.css">
-    <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-    <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
+
+
+    <!--font awesome con CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
 </head>
 
-<body onload="formreg.placa.focus()">
+<body>
 
-    <video autoplay loop muted poster="../../controller/image/poster.png">
-        <source src="../../controller/image/video_motos.mp4" type="video/mp4">
-    </video>
+    <div class="wrapper">
 
-    <!-- FORM CONTAINER -->
-    <main>
-        <div class="container_title">
-            <header>ACTUALIZACION DE MOTO</header>
+        <?php
+
+        require_once('./menu.php');
+        ?>
+
+
+        <div class="xp-breadcrumbbar text-center">
+            <h2 class="page-title"><span>ACTUALIZACION DE DATOS</span></h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Datos</a></li>
+                <li class="breadcrumb-item active" aria-curent="page">Moto</li>
+            </ol>
         </div>
-        <form method="POST" name="formreg" action="" autocomplete="off" id="formulario" class="formulario">
+    </div>
+    </div>
 
+    <div class="container-fluid">
+        <div class="ml-2 col-xs-12">
+            <!-- MAIN CONTAINER -->
 
-            <!-- Container: Placa -->
-            <div class="formulario__grupo" id="grupo__placa">
-                <label for="username" class="formulario__label">Placa</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" readonly value="<?php echo $_GET['placa'] ?>" name="placa" id="placa" placeholder="Ingrese numero de placa">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+            <form method="POST" name="formreg" action="" autocomplete="off">
+                <!-- Container: Placa -->
+                <div class="form-group">
+                    <label for="username" class="formulario__label">Placa</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" class="formulario__input" readonly value="<?php echo $_GET['placa'] ?>" name="placa" id="placa" placeholder="Ingrese numero de placa">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar la placa de la moto y debe ser de 3 letras y 3 numeros.</p>
                 </div>
-                <p class="formulario__input-error">Debe ingresar la placa de la moto y debe ser de 3 letras y 3 numeros.</p>
-            </div>
-            <!-- Container: Kilometraje -->
-            <div class="formulario__grupo" id="grupo__km">
-                <label for="name" class="formulario__label">Kilometraje</label>
-                <div class="formulario__grupo-input">
-                    <input value="<?php echo $motorcycle['km'] ?>" type="number" class="formulario__input" name="km" required id="km" placeholder="Ingrese sus nombres">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                </div>
-                <p class="formulario__input-error">Debe ingresar el kilometraje actual de la moto y no debe superar los 7 numeros.</p>
-            </div>
 
 
-            <div class="formulario__grupo select">
-                <div class="top">
-                    <label for="color" class="formulario__label label">Color</label>
-                    <a class="crear" href="crear_color.php">+ Crear</a>
-                </div>
-                <div class="formulario__grupo__input">
-                    <select id="buscador" name="color" class="formulario__input">
-                        <option value="<?php echo $motorcycle ['id_color']?>">Es de color <?php echo $motorcycle ['nombre_color']?>  </option>
-                        <?php
-                        do {
-                        ?>
-                            <option value="<?php echo ($color['id_color']) ?>"><?php echo ($color['nombre_color']) ?></option>
-                        <?php
-                        } while ($color = $select_color->fetch(PDO::FETCH_ASSOC));
-                        ?>
-                    </select>
-                </div>
-            </div>
-            <div class="formulario__grupo select">
-                <div class="top">
-                    <label for="combustible" class="formulario__label label">Combustible</label>
-                    <a class="crear" href="crear_combustible.php">+ Crear</a>
-                </div>
-                <div class="formulario__grupo__input">
-                    <select id="combustible" name="combustible" class="formulario__input">
-                        <option value="<?php echo $motorcycle ['id_combustible']?>">la moto utiliza <?php echo $motorcycle ['combustible']?></option>
-                        <?php
-                        do {
-                        ?>
-                            <option value="<?php echo ($sele_combustible['id_combustible']) ?>"><?php echo ($sele_combustible['combustible']) ?></option>
+                <div class="form-group">
+                    <!-- Container: Kilometraje -->
 
+                    <label for="name" class="formulario__label">Kilometraje</label>
+                    <div class="formulario__grupo-input">
+                        <input value="<?php echo $motorcycle['km'] ?>" type="number" class="formulario__input" name="km" required id="km" placeholder="Ingrese sus nombres">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar el kilometraje actual de la moto y no debe superar los 7 numeros.</p>
+                </div>
 
-                        <?php
-                        } while ($sele_combustible = $combustible->fetch(PDO::FETCH_ASSOC));
-                        ?>
-                    </select>
+                <!-- Container: Color -->
+
+                <div class="form-group">
+                    <div class="top">
+                        <label for="color" class="formulario__label">Actualizar Color</label>
+                    </div>
+                    <div class="formulario__grupo__input">
+                        <select id="buscador" name="color" class="formulario__input">
+                            <option value="<?php echo $motorcycle['id_color'] ?>">Es de color <?php echo $motorcycle['nombre_color'] ?> </option>
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($color['id_color']) ?>"><?php echo ($color['nombre_color']) ?></option>
+                            <?php
+                            } while ($color = $select_color->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
+                    </div>
 
                 </div>
-            </div>
 
-            <div class="formulario__grupo select">
-                <div class="top">
-                    <label for="Carroceria" class="formulario__label label">Carroceria</label>
-                    <a class="crear" href="carroceria.php">+ Crear</a>
+                <div class="form-group">
+                    <div class="top">
+                        <label for="combustible" class="formulario__label">Combustible</label>
+                    </div>
+                    <div class="formulario__grupo__input">
+                        <select id="combustible" name="combustible" class="formulario__input">
+                            <option value="<?php echo $motorcycle['id_combustible'] ?>">la moto utiliza <?php echo $motorcycle['combustible'] ?></option>
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($sele_combustible['id_combustible']) ?>"><?php echo ($sele_combustible['combustible']) ?></option>
+                            <?php
+                            } while ($sele_combustible = $combustible->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
+
+                    </div>
                 </div>
-                <div class="formulario__grupo__input">
-                    <select id="carroceria" name="carroceria" class="formulario__input">
-                        <option value="<?php echo $motorcycle['id_carroceria']?>">Seleccione nuevo Tipo de Carroceria</option>
-                        <?php
-                        do {
-                        ?>
-                            <option value="<?php echo ($sele_carroceria['id_carroceria']) ?>"><?php echo ($sele_carroceria['carroceria']) ?></option>
 
 
-                        <?php
-                        } while ($sele_carroceria = $carroceria->fetch(PDO::FETCH_ASSOC));
-                        ?>
-                    </select>
+                <div class="form-group">
+                    <div class="top">
+                        <label for="Carroceria" class="formulario__label">Carroceria</label>
+                    </div>
+                    <div class="formulario__grupo__input">
+                        <select id="carroceria" name="carroceria" class="formulario__input">
+                            <option value="<?php echo $motorcycle['id_carroceria'] ?>">Seleccione nuevo Tipo de Carroceria</option>
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($sele_carroceria['id_carroceria']) ?>"><?php echo ($sele_carroceria['carroceria']) ?></option>
 
+
+                            <?php
+                            } while ($sele_carroceria = $carroceria->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
+
+                    </div>
                 </div>
-            </div>
+
+                <div class="form-group">
+                    <div class="top">
+                        <label for="Cilindraje" class="formulario__label">Cilindraje</label>
+                    </div>
+                    <div class="formulario__grupo__input">
+                        <select id="cilindraje" name="cilindraje" class="formulario__input">
+                            <option value="<?php echo $motorcycle['id_cilindraje'] ?>">Seleccione Tipo de Cilindraje</option>
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($sele_cilindraje['id_cilindraje']) ?>"><?php echo ($sele_cilindraje['cilindraje']) ?></option>
 
 
-            <div class="formulario__grupo select">
-                <div class="top">
-                    <label for="Cilindraje" class="formulario__label label">Cilindraje</label>
-                    <a class="crear" href="crear_cilindraje.php">+ Crear</a>
-                </div>
-                <div class="formulario__grupo__input">
-                    <select id="cilindraje" name="cilindraje" class="formulario__input">
-                        <option value="<?php echo $motorcycle ['id_cilindraje'] ?>">Seleccione Tipo de Cilindraje</option>
-                        <?php
-                        do {
-                        ?>
-                            <option value="<?php echo ($sele_cilindraje['id_cilindraje']) ?>"><?php echo ($sele_cilindraje['cilindraje']) ?></option>
+                            <?php
+                            } while ($sele_cilindraje = $cilindraje->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
 
-
-                        <?php
-                        } while ($sele_cilindraje = $cilindraje->fetch(PDO::FETCH_ASSOC));
-                        ?>
-                    </select>
-
-                </div>
-            </div>
-
-            <div class="formulario__grupo select">
-                <div class="top">
-                    <label for="servicio" class="formulario__label label">Servicio de Moto</label>
-                    <a class="crear" href="servicio_moto.php">+ Crear</a>
-                </div>
-                <div class="formulario__grupo__input">
-                    <select id="servicio" name="servicio" class="formulario__input">
-                        <option value="<?php echo $motorcycle ['id_servicio_moto']?>">Seleccione Tipo de Servicio Moto</option>
-                        <?php
-                        do {
-                        ?>
-                            <option value="<?php echo ($service['id_servicio_moto']) ?>"><?php echo ($service['servicio_moto']) ?></option>
-
-
-                        <?php
-                        } while ($service = $service_moto->fetch(PDO::FETCH_ASSOC));
-                        ?>
-                    </select>
+                    </div>
 
                 </div>
-            </div>
 
 
+                <div class="form-group">
 
-            <!-- Container: Numero de documento -->
-            <div class="state">
-                <input class="cajas" readonly type="hidden" value="<?php echo $documento ?>" name="documento" placeholder="Ingrese su numero de documento">
-            </div>
+                    <div class="top">
+                        <label for="servicio" class="formulario__label">Servicio de Moto</label>
+
+                    </div>
+                    <div class="formulario__grupo__input">
+                        <select id="servicio" name="servicio" class="formulario__input">
+                            <option value="<?php echo $motorcycle['id_servicio_moto'] ?>">Seleccione Tipo de Servicio Moto</option>
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($service['id_servicio_moto']) ?>"><?php echo ($service['servicio_moto']) ?></option>
 
 
-            <div class="formulario__grupo formulario__grupo-btn-enviar">
-                <input type="submit" name="validar" value="Actualizar" class="formulario__btn"></input>
-                <input type="hidden" name="MM_insert" value="formreg">
-                <a href="index.php" class="return">Regresar</a>
-                <!-- <p class="formulario__mensaje-exito" id="formulario__mensaje-exito">Formulario enviado exitosamente!</p> -->
-            </div>
-        </form>
-    </main>
+                            <?php
+                            } while ($service = $service_moto->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class=" mt-4">
+                    <input class="btn btn-info mb-4 border" type="submit" value="Guardar">
+                    <input type="hidden" name="MM_insert" value="formreg">
+                    <a href="list_motos.php" class="btn btn-warning mb-4 border ">Cancelar Actualizacion</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <?php
+
+    require_once('formularios_crear.php');
+
+    ?>
+
 
 
     <!-- BUSCADORES EN TIEMPO REAL DEL SELECT AL CUAL FUE ASIGNADO CON EL ID UNICO -->
@@ -312,6 +359,45 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
     <script src="../../controller/JS/motos.js"></script>
     <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
+
+
+
+    <?php
+
+    require_once('formularios_crear.php');
+
+    ?>
+
+    <!-- jQuery, Popper.js, Bootstrap JS -->
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="popper/popper.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- datatables JS -->
+    <script type="text/javascript" src="datatables/datatables.min.js"></script>
+
+    <!-- para usar botones en datatables JS -->
+    <script src="datatables/Buttons-1.5.6/js/dataTables.buttons.min.js"></script>
+    <script src="datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>
+    <script src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>
+    <script src="datatables/Buttons-1.5.6/js/buttons.html5.min.js"></script>
+
+    <!-- código JS propìo-->
+    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".xp-menubar").on('click', function() {
+                $("#sidebar").toggleClass('active');
+                $("#content").toggleClass('active');
+            });
+
+            $('.xp-menubar,.body-overlay').on('click', function() {
+                $("#sidebar,.body-overlay").toggleClass('show-nav');
+            });
+
+        });
+    </script>
 
 </body>
 

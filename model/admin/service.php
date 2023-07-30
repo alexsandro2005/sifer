@@ -4,6 +4,19 @@ session_start();
 require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
+
+
+require_once('../../controller/validarSesion.php');
+
+if (isset($_POST['btncerrar'])) {
+    session_destroy();
+    header("Location:../../index.php");
+}
+
+
+$sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
+$sql->execute();
+$usua = $sql->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <?php
@@ -12,7 +25,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
     $services = $_POST['service'];
     $costo_service = $_POST['costo_service'];
     $code_service = $_POST['code_service'];
-    $cantidad = $_POST['cantidad'];
+    $state = $_POST['state'];
 
 
 
@@ -27,89 +40,143 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
         echo '<script> alert ("//Estimado Usuario, el registro ya se encuentra registrado //");</script>';
         echo '<script> window.location= "service.php"</script>';
-    } else if ($costo_service == "" || $costo_service == "" || $services == "" || $cantidad == "") {
+    } else if ($costo_service == "" || $costo_service == "" || $services == "" || $state == "") {
         // CONDICIONAL DEPENDIENDO SI EXISTEN ALGUN CAMPO VACIO EN EL FORMULARIO DE LA INTERFAZ
         echo '<script> alert (" //Estimado usuario existen datos vacios. //");</script>';
         echo '<script> window.location= "service.php"</script>';
     } else {
         // DECISION QUE PERMITE REALIZAR EL ENVIO DE LA INFORMACION MEDIANTE LA BASE DE DATOS //
-        $register_user = $connection->prepare("INSERT INTO services(service,costo_service,code_service,cantidad_ser) VALUES ('$services','$costo_service','$code_service','$cantidad')");   
+        $register_user = $connection->prepare("INSERT INTO services(service,costo_service,code_service,state, cantidad) VALUES ('$services','$costo_service','$code_service','$state',1)");
         $register_user->execute();
         echo '<script>alert("// Estimado Usuario el registro del nuevo servicio ha sido exitoso. //");</script>';
         echo '<script>window.location="lista_service.php"</script>';
     }
 }
 
-
-
 ?>
 
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <title>CREAR MODELO || SIFER-APP</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="main.css">
+
+    <!--datables CSS básico-->
+    <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
+    <!--datables estilo bootstrap 4 CSS-->
+    <link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../../controller/css/custom.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="./css/2.css">
+    <link rel="stylesheet" href="./css/estilo.css">
+    <title>REGISTRO SERVICIO || SIFER-APP</title>
+
+    <!----css3---->
+    <link rel="stylesheet" href="../../controller/CSS/custom.css">
+    <!--google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="../../controller/CSS/crear_service.css">
-    <link rel="shortcut icon" href="controller/image/SENA.png" type="image/x-icon">
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+
+    <!--font awesome con CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 </head>
+
 <body>
-    <video autoplay loop muted poster="../../controller/image/motos_img.png">
-        <source src="../../controller/image/video_motos.mp4" type="video/mp4">
-    </video>
+    <div class="wrapper">
+
+        <!-------sidebar--design- close----------->
+
+        <?php
+
+        require_once('./menu.php');
+        ?>
+
+        <div class="xp-breadcrumbbar text-center">
+            <h2 class="page-title"><span>REGISTRO DE SERVICIO</span></h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Datos</a></li>
+                <li class="breadcrumb-item active" aria-curent="page">Servicio</li>
+            </ol>
+        </div>
+    </div>
+    </div>
+
 
     <!-- FORM CONTAINER -->
-    <main>
-        <div class="container_title">
-            <header>CREAR SERVICIO</header>
+
+    <div class="container-fluid">
+        <div class="col-xs-12 mt-4 ">
+
+
+            <form method="POST" name="formreg" action="" autocomplete="off">
+
+                <!-- Container: Codigo servicio -->
+
+                <div class="form-group">
+                    <label for="codeservice" class="formulario__label">Codigo Servicio</label>
+                    <div class="formulario__grupo-input">
+                        <input autofocus type="number" class="formulario__input" maxlength="5" oninput="maxlengthNumber(this)" name="code_service" required id="id" placeholder="Ingrese el nuevo codigo del servicio">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div> 
+                    <p class="formulario__input-error">El codigo del servicio debe contener solo numeros.</p>
+                </div>
+
+                <div class="form-group">
+                    <!-- Container: Nuevo Servicio -->
+
+                    <label for="username" class="formulario__label">Nuevo Servicio</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" onkeypress="return(multipletext(event));" class="formulario__input" maxlength="20" oninput="maxlengthNumber(this)" name="service" required id="categoria" placeholder="Ingrese el nuevo servicio">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El nuevo servicio debe contener solo letras, no se permiten numeros.</p>
+                </div>
+
+                <div class="form-group">
+                    <!-- Container: Costo Servicio -->
+                    <label for="username" class="formulario__label">Costo Servicio</label>
+                    <div class="formulario__grupo-input">
+                        <input type="number" class="formulario__input" maxlength="6" oninput="maxlengthNumber(this)" name="costo_service" required id="costo" placeholder="Ingrese el nuevo modelo">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El costo debe ser como minimo de 4 numeros y maximo de 6 numeros</p>
+                </div>
+
+
+                <input type="hidden" class="formulario__input" maxlength="6" oninput="maxlengthNumber(this)" value="1" name="state" required id="costo" placeholder="Ingrese el nuevo modelo">
+
+                <div class="mt-4">
+                    <input type="submit" name="validar" value="Crear" class="btn btn-info"></input>
+                    <input type="hidden" name="MM_insert" value="formreg">
+                    <a href="lista_service.php" class="btn btn-warning">Regresar</a>
+                </div>
+            </form>
+
         </div>
-        <form method="POST" name="formreg" action="" autocomplete="off" id="formulario" class="formulario">
+    </div>
 
-            <!-- Container: Codigo servicio -->
-            <div class="formulario__grupo" id="grupo__id">
-                <label for="username" class="formulario__label">Codigo Servicio</label>
-                <div class="formulario__grupo-input">
-                    <input autofocus type="number"  class="formulario__input" maxlength="5" oninput="maxlengthNumber(this)" name="code_service" required id="id" placeholder="Ingrese el nuevo codigo del servicio">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                </div>
-                <p class="formulario__input-error">El codigo del servicio debe contener solo numeros.</p>
-            </div>
 
-            <!-- Container: Nuevo Servicio -->
-            <div class="formulario__grupo" id="grupo__categoria">
-                <label for="username" class="formulario__label">Nuevo Servicio</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" onkeypress="return(multipletext(event));" class="formulario__input" maxlength="20" oninput="maxlengthNumber(this)" name="service" required id="categoria" placeholder="Ingrese el nuevo servicio">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                </div>
-                <p class="formulario__input-error">El nuevo servicio debe contener solo letras, no se permiten numeros.</p>
-            </div>
-            <!-- Container: Username -->
-            <div class="formulario__grupo" id="grupo__costo">
-                <label for="username" class="formulario__label">Costo Servicio</label>
-                <div class="formulario__grupo-input">
-                    <input type="number" class="formulario__input" maxlength="6" oninput="maxlengthNumber(this)" name="costo_service" required id="costo" placeholder="Ingrese el nuevo modelo">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                </div>
-                <p class="formulario__input-error">El costo debe ser como minimo de 4 numeros y maximo de 6 numeros</p>
-            </div>
+    <?php
+    require_once('./formularios_crear.php');
 
-            <input type="hidden" class="formulario__input" maxlength="6" oninput="maxlengthNumber(this)" value="1" name="cantidad" required id="costo" placeholder="Ingrese el nuevo modelo">
+    ?>
 
-            <div class="formulario__grupo formulario__grupo-btn-enviar">
-                <input type="submit" name="validar" value="Crear" class="formulario__btn"></input>
-                <input type="hidden" name="MM_insert" value="formreg">
-                <a href="lista_service.php" class="return">Regresar</a>
-            </div>
-        </form>
-    </main>
 
     <script>
         function maxlengthNumber(obj) {
@@ -162,6 +229,33 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
     <script src="../../controller/JS/crear.js"></script>
     <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
+
+
+    <!-- BUSCADORES EN TIEMPO REAL DEL SELECT AL CUAL FUE ASIGNADO CON EL ID UNICO -->
+
+	<script>
+		$('#control').select2();
+	</script>
+	<!-------complete html----------->
+	<!-- Optional JavaScript -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="./js/jquery-3.3.1.slim.min.js"></script>
+	<script src="js/popper.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".xp-menubar").on('click', function() {
+				$("#sidebar").toggleClass('active');
+				$("#content").toggleClass('active');
+			});
+
+			$('.xp-menubar,.body-overlay').on('click', function() {
+				$("#sidebar,.body-overlay").toggleClass('show-nav');
+			});
+
+		});
+	</script>
 
 </body>
 

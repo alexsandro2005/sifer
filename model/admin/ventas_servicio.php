@@ -36,7 +36,7 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <title>VENTAS DOCUMENTOS || SIFER-APP</title>
+    <title>VENTAS SERVICIOS || SIFER-APP</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
     <!----css3---->

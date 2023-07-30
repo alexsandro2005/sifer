@@ -1,21 +1,33 @@
 <?php
 // SE DEBE INCLUIR EL ARCHIVO DE CONEXION A LA BASE DE DATOS
 require_once("../../database/connection.php");
+session_start();
 // VARIABLES QUE CONTIENE LA CLASE CON LOS PARAMETROS DE CONEXION A LA BASE DE DATOS
 $database = new Database();
 // VARIABLE QUE CONTIENE LA CONEXION A LA BASE DE DATOS SIFER-APP
 $connection = $database->conectar();
 // CONSULTA SQL PARA INVOCAR LOS TIPOS DE USUARIO REGISTRADOS
 
+
 $type_user = $connection->prepare("SELECT * FROM type_user");
 $type_user->execute();
 $select_type_user = $type_user->fetch(PDO::FETCH_ASSOC);
-
+$sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
+$sql->execute();
+$usua = $sql->fetch(PDO::FETCH_ASSOC);
+$user_report = $connection->prepare("SELECT * FROM user INNER JOIN type_user INNER JOIN state INNER JOIN gender ON user.id_type_user = type_user.id_type_user AND user.id_gender=gender.id_gender AND user.id_state=state.id_state");
+$user_report->execute();
+$reporte = $user_report->fetch(PDO::FETCH_ASSOC);
 // CONSULTA SQL PARA INVOCAR LOS TIPOS DE GENERO
 $select_gender = $connection->prepare("SELECT * FROM gender");
 $select_gender->execute();
 // VARIABLE QUE CONTIENE LA CONSULTA JUNTO CON EL ARRAY ASOCIATIVO QUE CONTIENE LAS FILAS REGISTRADAS
 $gender = $select_gender->fetch(PDO::FETCH_ASSOC);
+
+
+$comando = $connection->prepare("SELECT * FROM datetime_entry INNER JOIN user INNER JOIN type_user ON datetime_entry.document = user.document AND user.id_type_user = type_user.id_type_user ORDER BY id_entry  DESC LIMIT 6");
+$comando->execute();
+$resultado = $comando->fetch(PDO::FETCH_ASSOC);
 ?>
 <?php
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
@@ -30,7 +42,8 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
     $name_user = $_POST['name'];
     $surname = $_POST['surname'];
     $username = $_POST['username'];
-    $user_password = password_hash($_POST['password'], PASSWORD_DEFAULT, $pass_encriptaciones);
+    $user_password = $_POST['password'];
+    $passwordTwo = $_POST['password2'];
     $telephone = $_POST['telephone'];
     $email = $_POST['email'];
     $type_user = $_POST['id_type_user'];
@@ -38,7 +51,6 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
     $datetime = $_POST['datetime'];
     $id_state = $_POST['id_state'];
     $checkbox = $_POST['terminos'];
-
 
     // CONSULTA SQL PARA VERIFICAR SI EL USUARIO YA EXISTE EN LA BASE DE DATOS
     $db_validation = $connection->prepare("SELECT * FROM user WHERE document='$document_user' OR username='$username'");
@@ -50,209 +62,286 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
         // SI SE CUMPLE LA CONSULTA ES PORQUE EL USUARIO YA EXISTE
         echo '<script> alert ("// Estimado Usuario, los datos ingresados ya se encuentran registrados. //");</script>';
         echo '<script> window.location= "crear_usu.php"</script>';
-    } else if ($document_user == "" || $name_user == "" || $surname == ""  || $username == "" || $user_password == "" || $telephone == "" || $email == "" || $type_user == "" || $id_gender == "" || $datetime == "" || $id_state == "") {
+    } else if ($document_user == "" || $name_user == "" || $surname == ""  || $username == "" || $user_password == "" || $telephone == "" || $email == "" || $type_user == "" || $id_gender == "" || $datetime == "" || $checkbox == ""  || $id_state == "") {
         // CONDICIONAL DEPENDIENDO SI EXISTEN ALGUN CAMPO VACIO EN EL FORMULARIO DE LA INTERFAZ
         echo '<script> alert ("Estimado Usuario, Existen Datos Vacios En El Formulario");</script>';
         echo '<script> window.location= "crear_usu.php"</script>';
+
+        // CONDICIONAL QUE VALIDA QUE LAS DOS CONTRASEÑAS SEAN IGUALES
+    } elseif ($user_password !== $passwordTwo) {
+        echo '<script> alert ("Las dos contraseñas deben ser iguales para poder realizar el registro");</script>';
+        echo '<script> window.location= "crear_usu.php"</script>';
     } else {
-        $register_user = $connection->prepare("INSERT INTO user(document,name,surname,date_user,username,telephone,email,id_type_user,id_gender,password,id_state) VALUES('$document_user','$name_user','$surname','$datetime' ,'$username','$telephone','$email','$type_user','$id_gender','$user_password','$id_state')");
-        $register_user->execute();
-        echo '<script>alert ("// El registro de usuario ha sido exitoso. //");</script>';
-        echo '<script>window.location="index.php"</script>';
+        $password = password_hash($user_password, PASSWORD_DEFAULT, $pass_encriptaciones);
+        $register_user = $connection->prepare("INSERT INTO user(document,name,surname,date_user,username,telephone,email,id_type_user,id_gender,password,id_state,confirmacion,datetime_reg) VALUES('$document_user','$name_user','$surname','$datetime','$username','$telephone','$email','$type_user','$id_gender','$password','$id_state','$checkbox',NOW())");
+        if ($register_user->execute()) {
+            echo '<script>alert ("Registro Exitoso de Usuario.");</script>';
+            echo '<script>window.location="lista_usu.php"</script>';
+        }
     }
 }
 ?>
 <!-- ESTRUCTURA DEL FORMULARIO DE REGISTRO HTML -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <title>CREAR USUARIO || SIFER APP</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="main.css">
+
+    <!--datables CSS básico-->
+    <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
+    <!--datables estilo bootstrap 4 CSS-->
+    <link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../../controller/css/custom.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>CREAR USUARIO || SIFER-APP</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
+    <!----css3---->
+    <link rel="stylesheet" href="../../controller/CSS/custom.css">
+    <!--google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="../../controller/CSS/style_register.css">
-    <link rel="shortcut icon" href="../../controller/image/SENA.png" type="image/x-icon">
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+
+    <!--font awesome con CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 
 </head>
 
-<body onload="formreg.document.focus()">
+<body>
 
-    <video autoplay loop muted poster="../../controller/image/poster.png">
-        <source src="../../controller/image/video_motos.mp4" type="video/mp4">
-    </video>
+<body onload="limitarFechas()">
 
-    <!-- FORM CONTAINER -->
-    <main>
-        <div class="container_title">
-            <header>CREAR USUARIO</header>
+    <div class="wrapper">
+
+        <?php
+
+        require_once('menu.php');
+
+        ?>
+
+        <div class="xp-breadcrumbbar text-center">
+            <h2 class="page-title"><span>REGISTRO DE USUARIO</span></h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Datos</a></li>
+                <li class="breadcrumb-item active" aria-curent="page">Usuario</li>
+            </ol>
         </div>
-        <form method="POST" name="formreg" action="" autocomplete="off" id="formulario" class="formulario">
+    </div>
+    </div>
 
-            <!-- Container: Document -->
-            <div class="formulario__grupo" id="grupo__document">
-                <label for="document" class="formulario__label">Numero de documento</label>
-                <div class="formulario__grupo-input">
-                    <input type="number" maxlength="10" oninput="maxlengthNumber(this);" class="formulario__input" name="document" id="document" required placeholder="Ingrese su numero de documento">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+
+    <div class="container-fluid mt-4">
+        <div class="col-xs-12 ml-2">
+            <!-- FORM CONTAINER -->
+            <form method="POST" name="formreg" action="" autocomplete="off">
+                <!-- Group Type User -->
+
+                <div class="form-group">
+                    <label for="tipousuario" class="formulario__label ">Tipo de Usuario</label>
+                    <div class="formulario__grupo__input">
+
+                        <select name="id_type_user" autofocus class="formulario__input">
+                            <option value="">Seleccione el tipo de usuario</option>
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($select_type_user['id_type_user']) ?>"><?php echo ($select_type_user['type_user']) ?></option>
+                            <?php
+                            } while ($select_type_user = $type_user->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
+                    </div>
                 </div>
-                <p class="formulario__input-error">El numero de documento debe ser de 6 a 10 numeros.</p>
-            </div>
 
-            <!-- Container: Nombre -->
-            <div class="formulario__grupo" id="grupo__name">
-                <label for="name" class="formulario__label">Primer Nombre</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" oninput="maxlengthNumber(this);" onkeypress="return(multipletext(event));" maxlength="15" name="name" required id="name" placeholder="Ingrese sus nombres">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                <!-- Container: Document -->
+
+                <div class="form-group">
+                    <label for="document" class="formulario__label">Numero de documento</label>
+                    <div class="formulario__grupo-input">
+                        <input type="number" maxlength="10" oninput="maxlengthNumber(this);" onkeypress="return(multiplenumber(event));" class="formulario__input" name="document" id="document" required placeholder="Ingrese su numero de documento">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El numero de documento debe ser de 6 a 10 numeros.</p>
                 </div>
-                <p class="formulario__input-error">Debe ingresar solo letras, y debe indicar su primer nombre</p>
-            </div>
 
-            <!-- Container: Apellidos -->
+                <div class="form-group">
+                    <!-- Container: Nombre -->
 
-            <div class="formulario__grupo" id="grupo__surname">
-                <label for="surname" class="formulario__label">Primer Apellido</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" onkeypress="return(multipletext(event));" pattern="[A-Za-z]+" maxlength="15" name="surname" required id="surname" placeholder="Ingrese sus apellidos">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    <label for="name" class="formulario__label">Nombres</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" class="formulario__input" oninput="maxlengthNumber(this);" onkeypress="return(multipletext(event));" maxlength="15" name="name" required id="name" placeholder="Ingrese sus nombres">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar solo letras, y debe indicar su primer nombre</p>
                 </div>
-                <p class="formulario__input-error">Debe ingresar solor letras, y debe indicar su primer apellido.</p>
-            </div>
 
-            <!-- Container: Username -->
-            <div class="formulario__grupo" id="grupo__username">
-                <label for="username" class="formulario__label">Nombre de Usuario</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" maxlength="12" oninput="(maxlengthNumber(this))" class="formulario__input" name="username" required id="username" placeholder="Ingrese su nombre de usuario">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+
+                <div class="form-group">
+                    <!-- Container: Apellidos -->
+
+
+                    <label for="surname" class="formulario__label">Apellidos</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" class="formulario__input" onkeypress="return(multipletext(event));" pattern="[A-Za-z]+" maxlength="15" name="surname" required id="surname" placeholder="Ingrese sus apellidos">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar solor letras, y debe indicar su primer apellido.</p>
                 </div>
-                <p class="formulario__input-error">El usuario tiene que ser de 10 a 12 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-            </div>
 
 
-            <!-- Container: Password -->
+                <div class="form-group">
+                    <!-- Container: Username -->
 
-            <div class="formulario__grupo" id="grupo__password">
-                <label for="password" class="formulario__label">Contraseña de Usuario</label>
-                <div class="formulario__grupo-input">
-                    <input type="password" maxlength="12" class="formulario__input" name="password" oninput="maxlengthNumber(this);" required id="password" placeholder="Ingrese su contraseña">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    <label for="username" class="formulario__label">Nombre de Usuario</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" minlength="6" maxlength="12" oninput="(maxlengthNumber(this))" class="formulario__input" name="username" required id="username" placeholder="Ingrese su nombre de usuario">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El usuario tiene que ser de 10 a 12 dígitos y solo puede contener numeros, letras y guion bajo.</p>
                 </div>
-                <p class="formulario__input-error">La contraseña tiene que ser de 10 a 12 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-            </div>
 
-            <!-- Group: Password 2 -->
 
-            <div class="formulario__grupo" id="grupo__password2">
-                <label for="password2" class="formulario__label">Repetir Contraseña</label>
-                <div class="formulario__grupo-input">
-                    <input type="password" class="formulario__input" maxlength="12" name="password2" oninput=" maxlengthNumber(this);" required id="password2" placeholder="Repita su contraseña">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                <div class="form-group">
+                    <!-- Container: Password -->
+                    <label for="password" class="formulario__label">Contraseña de Usuario</label>
+                    <div class="formulario__grupo-input">
+                        <input type="password" minlength="10" maxlength="20" class="formulario__input" name="password" oninput="maxlengthNumber(this);" required id="password" placeholder="Ingrese su contraseña">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">La contraseña tiene que ser de 10 a 12 dígitos y solo puede contener numeros, letras y guion bajo.</p>
                 </div>
-                <p class="formulario__input-error">Ambas contraseñas deben ser iguales.</p>
-            </div>
 
+                <div class="form-group">
+                    <!-- Group: Password 2 -->
 
-            <!-- Container: telephone -->
+                    <label for="password2" class="formulario__label">Repetir Contraseña</label>
+                    <div class="formulario__grupo-input">
+                        <input type="password" class="formulario__input" minlength="10" maxlength="20" name="password2" oninput=" maxlengthNumber(this);" required id="password2" placeholder="Repita su contraseña">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Ambas contraseñas deben ser iguales.</p>
 
-            <div class="formulario__grupo" id="grupo__telephone">
-                <label for="telephone" class="formulario__label">Numero de Celular</label>
-                <div class="formulario__grupo-input">
-                    <input type="number" class="formulario__input" maxlength="10" name="telephone" oninput="maxcelNumber(this);" required id="telephone" placeholder="Ingrese su numero de contacto">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
                 </div>
-                <p class="formulario__input-error">Debe ingresar su numero telefonico y solo se permite ingreso de diez datos numericos.</p>
-            </div>
 
 
-            <!-- Container: email -->
-            <div class="formulario__grupo" id="grupo__email">
-                <label for="email" class="formulario__label">Correo Electronico</label>
-                <div class="formulario__grupo-input">
-                    <input type="email" maxlength="30" oninput="maxlengthNumber(this);" class="formulario__input" name="email" required id="email" placeholder="Ingrese su correo electronico">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                <div class="form-group">
+                    <!-- Container: telephone -->
+                    <label for="telephone" class="formulario__label">Numero de Celular</label>
+                    <div class="formulario__grupo-input">
+                        <input type="number" class="formulario__input" maxlength="10" name="telephone" oninput="maxcelNumber(this);" required id="telephone" placeholder="Ingrese su numero de contacto">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar su numero telefonico y solo se permite ingreso de diez datos numericos.</p>
                 </div>
-                <p class="formulario__input-error">Su correo solo puede contener letras, numeros, puntos, guiones y guiones bajos. Obligatoriamente debe tener el signo arroba "@".
-                <p>
-            </div>
 
 
-            <div class="formulario__grupo" id="grupo__datetime">
-                <label for="telephone" class="formulario__label">Fecha de nacimiento</label>
-                <div class="formulario__grupo-input">
-                    <input type="date" class="formulario__input" maxlength="10" name="datetime" required id="datetime" placeholder="Ingrese su fecha de nacimiento">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                <div class="form-group">
+                    <!-- Container: email -->
+
+                    <label for="email" class="formulario__label">Correo Electronico</label>
+                    <div class="formulario__grupo-input">
+                        <input type="email" maxlength="30" oninput="maxlengthNumber(this);" class="formulario__input" name="email" required id="email" placeholder="Ingrese su correo electronico">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Su correo solo puede contener letras, numeros, puntos, guiones y guiones bajos. Obligatoriamente debe tener el signo arroba "@".
+                    <p>
+
                 </div>
-                <p class="formulario__input-error">Debe ingresar su fecha de nacimiento</p>
-            </div>
 
-
-            <!-- Container Type Gender -->
-            <div class="fomulario__grupo container_gender">
-                <label for="" class="formulario__label label">
-                    <option value="">Selecccion Tipo de Genero</option>
-                </label>
-                <div class="formulario__grupo__input formulario__input">
-                    <?php
-                    do {
-
-                    ?>
-                        <input class="gender" name="id_gender" type="radio" value="<?php echo ($gender['id_gender']) ?>"> <?php echo ($gender['gender']) ?></input>
-                    <?php
-
-                    } while ($gender = $select_gender->fetch(PDO::FETCH_ASSOC));
-                    ?>
+                <div class="form-group">
+                    <label for="telephone" class="formulario__label">Fecha de nacimiento</label>
+                    <div class="formulario__grupo-input">
+                        <input type="date" class="formulario__input" maxlength="10" min="1940-01-01" name="datetime" required id="fecha" placeholder="Ingrese su fecha de nacimiento">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar su fecha de nacimiento</p>
                 </div>
-            </div>
 
-            <!-- Group Type User -->
+                <div class="form-group">
+                    <!-- Container Type Gender -->
 
-            <div class="formulario__grupo select">
-                <label for="tipousuario" class="formulario__label label">Tipo de Usuario</label>
-                <div class="formulario__grupo__input">
-                    <select name="id_type_user" class="formulario__input">
-                        <option value="">Seleccione el tipo de usuario</option>
+                    <label for="" class="formulario__label">Tipo de Genero</label>
+                    <div class="formulario__grupo__input formulario__input">
                         <?php
                         do {
+
                         ?>
-                            <option value="<?php echo ($select_type_user['id_type_user']) ?>"><?php echo ($select_type_user['type_user']) ?></option>
+                            <input class="gender" name="id_gender" type="radio" value="<?php echo ($gender['id_gender']) ?>"> <?php echo ($gender['gender']) ?></input>
                         <?php
-                        } while ($select_type_user = $type_user->fetch(PDO::FETCH_ASSOC));
+
+                        } while ($gender = $select_gender->fetch(PDO::FETCH_ASSOC));
                         ?>
-                    </select>
+                    </div>
+
                 </div>
-            </div>
-            <!-- Container: State_user -->
-            <div class="state">
-                <input class="cajas" type="hidden" value="2" name="id_state" placeholder="Ingrese su estado">
-            </div>
 
 
-            <!-- Container: Terminos y Condiciones -->
-            <div class="formulario__grupo formulario__checkbox" id="grupo__terminos">
-                <label class="formulario__label">
-                    <input type="checkbox" name="terminos" id="terminos">
-                    Acepto los Terminos y Condiciones <br> para el uso de mis datos
-                </label>
-            </div>
-            <div class="formulario__grupo formulario__grupo-btn-enviar">
-                <input type="submit" name="validar" value="Crear Usuario" class="formulario__btn"></input>
-                <input type="hidden" name="MM_insert" value="formreg">
-                <a href="index.php" class="return">Regresar</a>
+                <!-- Container: State_user -->
+                <div class="state">
+                    <input class="cajas" type="hidden" value="2" name="id_state" placeholder="Ingrese su estado">
+                </div>
 
-            </div>
-        </form>
-    </main>
+
+                <div class="form-group ml-4">
+                    <!-- Container: Terminos y Condiciones -->
+
+                    <label class="formulario__label">
+                        <input type="checkbox" name="terminos" value="1" id="terminos">
+                        Acepto los Terminos y Condiciones <br> para el uso de mis datos
+                    </label>
+                </div>
+
+                <div class="form-group" role="group" aria-label="Button group">
+                    <input type="submit" class="btn btn-info ml-3" name="validar" value="Crear Cliente"></input>
+                    <input type="hidden" name="MM_insert" value="formreg">
+                    <a href="index.php" class="btn btn-danger">Cancelar Registro</a>
+                </div>
+            </form>
+        </div>
+
+
+        <?php
+        require_once('./formularios_crear.php');
+
+        ?>
+
+    </div>
+
 
     <!-- FUNCION DE JAVASCRIPT QUE PERMITE INGRESAR SOLO EL NUMERO VALORES REQUERIDOS DE ACUERDO A LA LONGITUD MAXLENGTH DEL CAMPO -->
 
     <script>
+        // FUNCION DE JAVASCRIPT PARA VALIDAR LOS AÑOS DE RANGO PARA LA FECHA DE NACIMIENTO
+        var fechaInput = document.getElementById('fecha');
+        // Calcular las fechas mínima y máxima permitidas
+        var fechaMaxima = new Date();
+        fechaMaxima.setFullYear(fechaMaxima.getFullYear() - 18); // Restar 18 años para que la persona se registre
+        var fechaMinima = new Date();
+        fechaMinima.setFullYear(fechaMinima.getFullYear() - 80); // Restar 80 años
+        // Formatear las fechas mínima y máxima en formato de fecha adecuado (YYYY-MM-DD)
+        var fechaMaximaFormateada = fechaMaxima.toISOString().split('T')[0];
+        var fechaMinimaFormateada = fechaMinima.toISOString().split('T')[0];
+
+        // Establecer los atributos min y max del campo de entrada de fecha
+        fechaInput.setAttribute('min', fechaMinimaFormateada);
+        fechaInput.setAttribute('max', fechaMaximaFormateada);
+
         function maxlengthNumber(obj) {
 
             if (obj.value.length > obj.maxLength) {
@@ -279,9 +368,9 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
             teclado = String.fromCharCode(key).toLowerCase();
 
-            letras = "qwertyuiopasdfghjklñzxcvbnm";
+            letras = "qwertyuiopasdfghjklñzxcvbnm ";
 
-            especiales = "8-37-38-46-164-46";
+            especiales = "8-37-38-46-164-46-32";
 
             teclado_especial = false;
 
@@ -300,10 +389,92 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
             }
         }
     </script>
+    <!-- para usar botones en datatables JS -->
+    <script src="datatables/Buttons-1.5.6/js/dataTables.buttons.min.js"></script>
+    <script src="datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>
+    <script src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>
+    <script src="datatables/Buttons-1.5.6/js/buttons.html5.min.js"></script>
+
+    <!-- Agregar el enlace a Bootstrap JS (requerido para el funcionamiento del formulario) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para mostrar u ocultar el formulario al hacer clic en el enlace -->
+    <script>
+        document.getElementById('mostrarFormulario').addEventListener('click', function() {
+            var formulario = document.getElementById('formulario');
+            if (formulario.style.display === 'none') {
+                formulario.style.display = 'block';
+            } else {
+                formulario.style.display = 'none';
+            }
+        });
+    </script>
+
+    <!-- código JS propìo-->
+    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".xp-menubar").on('click', function() {
+                $("#sidebar").toggleClass('active');
+                $("#content").toggleClass('active');
+            });
+
+            $('.xp-menubar,.body-overlay').on('click', function() {
+                $("#sidebar,.body-overlay").toggleClass('show-nav');
+            });
+
+        });
+    </script>
 
 
+
+
+
+    <script>
+        function multiplenumber(e) {
+            key = e.keyCode || e.which;
+
+            teclado = String.fromCharCode(key).toLowerCase();
+
+            letras = "1234567890";
+
+            especiales = "8-37-38-46-164-46";
+
+            teclado_especial = false;
+
+            for (var i in especiales) {
+                if (key == especiales[i]) {
+                    teclado_especial = true;
+                    break;
+                }
+            }
+
+            if (letras.indexOf(teclado) == -1 && !teclado_especial) {
+                return false;
+                alert("Debe ingresar solo numeros en el campo y debe ser en un rango de 6 a 10 numeros.");
+            }
+        }
+    </script>
+
+
+
+
+
+    <!-- TYPED JS -->
+    <script src="https://unpkg.com/typed.js@2.0.132/dist/typed.umd.js"></script>
+    <script src="../../controller/JS/main.js"></script>
+
+    <!-- VALIDACION DE FORMULARIO -->
     <script src="../../controller/JS/formulario.js"></script>
     <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
+
+    <script src="js/jquery-3.3.1.slim.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-3.3.1.min.js"></script>
+
+
 
 </body>
 

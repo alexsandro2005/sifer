@@ -1,9 +1,15 @@
 <?php
 session_start();
 require_once("../../database/connection.php");
+require_once("../../controller/validarSesion.php");
 $db = new Database();
 $connection = $db->conectar();
-
+$sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
+$sql->execute();
+$usua = $sql->fetch(PDO::FETCH_ASSOC);
+$user_report = $connection->prepare("SELECT * FROM user INNER JOIN type_user INNER JOIN state INNER JOIN gender ON user.id_type_user = type_user.id_type_user AND user.id_gender=gender.id_gender AND user.id_state=state.id_state");
+$user_report->execute();
+$reporte = $user_report->fetch(PDO::FETCH_ASSOC);
 
 ?>
 <?php
@@ -39,7 +45,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
     $telefono = $_POST['telephone'];
     $email = $_POST['email'];
     $idusu = $_POST['id_type_user'];
-    $state=$_POST['state'];
+    $state = $_POST['state'];
 
     $db_validation = $connection->prepare("SELECT * FROM user WHERE document= '" . $_GET['documento'] . "'");
     $db_validation->execute();
@@ -63,151 +69,192 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
 ?>
 <!-- ESTRUCTURA DEL FORMULARIO DE REGISTRO HTML -->
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <title>ACTUALIZAR USUARIO || SIFER-APP</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="main.css">
+
+    <!--datables CSS básico-->
+    <link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
+    <!--datables estilo bootstrap 4 CSS-->
+    <link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../../controller/css/custom.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>ACTUALIZACION USUARIO <?php echo $fiels['document'] ?></title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
+    <!----css3---->
+    <link rel="stylesheet" href="../../controller/CSS/custom.css">
+    <!--google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="../../controller/CSS/actu.css">
+
+    <!--google material icon-->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+
+    <!--font awesome con CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
 </head>
 
-<body onload="formreg.document.focus()">
-    <video autoplay loop muted poster="../../controller/image/poster.png">
-        <source src="../../controller/image/video_motos.mp4" type="video/mp4">
-    </video>
-    <main>
-        <div class="container_title">
-            <header>ACTUALIZACION DE USUARIO</header>
+<body>
+
+    <div class="wrapper">
+        <?php
+
+        require_once('menu.php');
+        ?>
+
+
+        <div class="xp-breadcrumbbar text-center">
+            <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">lista</a></li>
+                <li class="breadcrumb-item active" aria-curent="page">Usuarios</li>
+            </ol>
         </div>
-        <form method="POST" name="formreg" action="" autocomplete="off" id="formulario" class="formulario">
 
-            <!-- Group: Document -->
-            <div class="formulario__grupo" id="grupo__document">
-                <label for="document" class="formulario__label">Numero de documento</label>
-                <div class="formulario__grupo-input">
-                    <input type="number" class="formulario__input" name="document" maxlength="10" oninput="maxlengthNumber(this);" readonly value="<?php echo $fiels['document'] ?>" id="document" required placeholder="Ingrese su numero de documento">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+    </div>
+    </div>
+
+    <div class="container-fluid  mt-4">
+
+        <div class="col-xs-12 ml-2 mr-2">
+            <form method="POST" name="formreg" action="" autocomplete="off">
+
+                <!-- Group: Document -->
+                <div class="form-group">
+                    <label for="document" class="formulario__label">Numero de documento</label>
+                    <div class="formulario__grupo-input">
+                        <input type="number" class="formulario__input" name="document" maxlength="10" oninput="maxlengthNumber(this);" readonly value="<?php echo $fiels['document'] ?>" id="document" required placeholder="Ingrese su numero de documento">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El numero de documento debe ser de 6 a 10 numeros.</p>
                 </div>
-                <p class="formulario__input-error">El numero de documento debe ser de 6 a 10 numeros.</p>
-            </div>
 
 
-            <!-- Group: Nombre -->
-            <div class="formulario__grupo" id="grupo__name">
-                <label for="name" class="formulario__label">Primer Nombre</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" name="name" required id="name" maxlength="20" oninput="maxlengthNumber(this);" onkeypress="return(multipletext(event));" value="<?php echo $fiels['name'] ?>" placeholder="Ingrese sus nombres">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                <!-- Group: Nombre -->
+
+                <div class="form-group">
+                    <label for="name" class="formulario__label">Primer Nombre</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" class="formulario__input" name="name" required id="name" maxlength="20" oninput="maxlengthNumber(this);" onkeypress="return(multipletext(event));" value="<?php echo $fiels['name'] ?>" placeholder="Ingrese sus nombres">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar solo el primer nombre y se aceptan solo letras.</p>
                 </div>
-                <p class="formulario__input-error">Debe ingresar solo el primer nombre y se aceptan solo letras.</p>
-            </div>
 
-            <!-- Group: Apellido -->
-            <div class="formulario__grupo" id="grupo__surname">
-                <label for="name" class="formulario__label">Primer Apellido</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" name="surname" required maxlength="20" oninput="maxlengthNumber(this);" onkeypress="return(multipletext(event));" id="surname" value="<?php echo $fiels['surname'] ?>" placeholder="Ingrese sus nombres">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+
+                <div class="form-group">
+                    <!-- Group: Apellido -->
+
+                    <label for="name" class="formulario__label">Primer Apellido</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" class="formulario__input" name="surname" required maxlength="20" oninput="maxlengthNumber(this);" onkeypress="return(multipletext(event));" id="surname" value="<?php echo $fiels['surname'] ?>" placeholder="Ingrese sus nombres">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">Debe ingresar solo el primer apellido y se aceptan solo letras.</p>
                 </div>
-                <p class="formulario__input-error">Debe ingresar solo el primer apellido y se aceptan solo letras.</p>
-            </div>
 
+                <div class="form-group">
+                    <!-- Group: Username -->
 
+                    <label for="username" class="formulario__label">Nombre de Usuario</label>
+                    <div class="formulario__grupo-input">
+                        <input type="text" class="formulario__input" name="username" maxlength="12" oninput="maxlengthNumber(this);" value="<?php echo $fiels['username'] ?>" required id="username" placeholder="Ingrese su nombre">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El usuario tiene que ser de 4 a 10 dígitos y solo puede contener numeros, letras y guion bajo.</p>
 
-
-            <!-- Group: Username -->
-            <div class="formulario__grupo" id="grupo__username">
-                <label for="username" class="formulario__label">Nombre de Usuario</label>
-                <div class="formulario__grupo-input">
-                    <input type="text" class="formulario__input" name="username" maxlength="12" oninput="maxlengthNumber(this);" value="<?php echo $fiels['username'] ?>" required id="username" placeholder="Ingrese su nombre">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
                 </div>
-                <p class="formulario__input-error">El usuario tiene que ser de 4 a 10 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-            </div>
 
+                <!-- Group: telephone -->
 
-
-            <!-- Group: telephone -->
-
-            <div class="formulario__grupo" id="grupo__telephone">
-                <label for="telephone" class="formulario__label">Numero de Telefono</label>
-                <div class="formulario__grupo-input">
-                    <input type="number" class="formulario__input" name="telephone" maxlength="10" oninput="maxlengthNumber(this);" value="<?php echo $fiels['telephone'] ?>" required id="telephone" placeholder="Ingrese su numero de contacto">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                <div class="form-group">
+                    <label for="telephone" class="formulario__label">Numero de Telefono</label>
+                    <div class="formulario__grupo-input">
+                        <input type="number" class="formulario__input" name="telephone" maxlength="10" oninput="maxlengthNumber(this);" value="<?php echo $fiels['telephone'] ?>" required id="telephone" placeholder="Ingrese su numero de contacto">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El nombre tiene que ser de 4 a 20 dígitos y solo puede contener numeros, letras y guion bajo.</p>
                 </div>
-                <p class="formulario__input-error">El nombre tiene que ser de 4 a 20 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-            </div>
 
 
-            <!-- Group: email -->
-            <div class="formulario__grupo" id="grupo__email">
-                <label for="email" class="formulario__label">Correo Electronico</label>
-                <div class="formulario__grupo-input">
-                    <input type="email" class="formulario__input" maxlength="30" oninput="maxlengthNumber(this);" name="email" value="<?php echo $fiels['email'] ?>" required id="email" placeholder="Ingrese su correo electronico">
-                    <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                <!-- Group: email -->
+
+                <div class="form-group">
+                    <label for="email" class="formulario__label">Correo Electronico</label>
+                    <div class="formulario__grupo-input">
+                        <input type="email" class="formulario__input" maxlength="30" oninput="maxlengthNumber(this);" name="email" value="<?php echo $fiels['email'] ?>" required id="email" placeholder="Ingrese su correo electronico">
+                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
+                    </div>
+                    <p class="formulario__input-error">El nombre tiene que ser de 4 a 20 dígitos y solo puede contener numeros, letras y guion bajo.</p>
                 </div>
-                <p class="formulario__input-error">El nombre tiene que ser de 4 a 20 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-            </div>
+
+                <div class="form-group">
+                    <!-- Group Type User -->
+                    <label for="tipousuario" class="formulario__label label">Tipo de Usuario</label>
+                    <div class="formulario__grupo__input">
+                        <select name="id_type_user" class="formulario__input">
+                            <option value="<?php echo $fiels['id_type_user'] ?>">Actualmente es <?php echo $fiels['type_user'] ?></option>
+
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($fila['id_type_user']) ?>"><?php echo ($fila['type_user']) ?></option>
 
 
-
-
-            <!-- Group Type User -->
-
-            <div class="formulario__grupo select">
-                <label for="tipousuario" class="formulario__label label">Tipo de Usuario</label>
-                <div class="formulario__grupo__input">
-                    <select name="id_type_user" class="formulario__input">
-                        <option value="<?php echo $fiels['id_type_user'] ?>">Actualmente es <?php echo $fiels['type_user'] ?></option>
-
-                        <?php
-                        do {
-                        ?>
-                            <option value="<?php echo ($fila['id_type_user']) ?>"><?php echo ($fila['type_user']) ?></option>
-
-
-                        <?php
-                        } while ($fila = $control->fetch(PDO::FETCH_ASSOC));
-                        ?>
-                    </select>
+                            <?php
+                            } while ($fila = $control->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Group State -->
 
-            <div class="formulario__grupo select">
-                <label for="tipousuario" class="formulario__label label">Estado Usuario</label>
-                <div class="formulario__grupo__input">
-                    <select name="state" class="formulario__input">
-                        <option value="<?php echo $fiels['id_state'] ?>">Actualmente es <?php echo $fiels['state'] ?></option>
-                        <?php
-                        do {
-                        ?>
-                            <option value="<?php echo ($state_update['id_state']) ?>"><?php echo ($state_update['state']) ?></option>
+                <!-- Group State -->
+                <div class="form-group">
 
-                        <?php
-                        } while ($state_update = $select_state->fetch(PDO::FETCH_ASSOC));
-                        ?>
-                    </select>
+                    <label for="tipousuario" class="formulario__label label">Estado Usuario</label>
+                    <div class="formulario__grupo__input">
+                        <select name="state" class="formulario__input">
+                            <option value="<?php echo $fiels['id_state'] ?>">Actualmente es <?php echo $fiels['state'] ?></option>
+                            <?php
+                            do {
+                            ?>
+                                <option value="<?php echo ($state_update['id_state']) ?>"><?php echo ($state_update['state']) ?></option>
+
+                            <?php
+                            } while ($state_update = $select_state->fetch(PDO::FETCH_ASSOC));
+                            ?>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <div class="formulario__grupo formulario__grupo-btn-enviar">
-                <input type="submit" name="validar" value="Actualizar" class="formulario__btn"></input>
-                <input type="hidden" name="MM_insert" value="formreg">
-                <a href="index.php" class="return">Regresar</a>
-                <!-- <p class="formulario__mensaje-exito" id="formulario__mensaje-exito">Formulario enviado exitosamente!</p> -->
-            </div>
-        </form>
-    </main>
+                <div class="mt-3 mb-3">
+                    <input type="submit" name="validar" value="Actualizar" class="btn btn-info">
+                    <input type="hidden" name="MM_insert" value="formreg">
+                    <a href="lista_usu.php" class="btn btn-success">Regresar</a>
+                </div>
+            </form>
+        
+
+        </div>
+
+    </div>
+
 
     <!-- FUNCION DE JAVASCRIPT QUE PERMITE INGRESAR SOLO EL NUMERO VALORES REQUERIDOS DE ACUERDO A LA LONGITUD MAXLENGTH DEL CAMPO -->
 

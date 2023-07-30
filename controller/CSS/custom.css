@@ -2,10 +2,6 @@ body,
 html {
 	line-height: 1.8;
 	font-family: 'Poppins', sans-serif;
-	background-image: url(../image/galaxia.jpg);
-	background-repeat: no-repeat;
-	background-size: cover;
-	background-attachment: fixed;
 	color: #555e58;
 	text-transform: capitalize;
 	font-weight: 400;
@@ -31,6 +27,8 @@ html {
 		url(https://example.com/MaterialIcons-Regular.woff) format('woff'),
 		url(https://example.com/MaterialIcons-Regular.ttf) format('truetype');
 }
+
+
 
 
 
@@ -126,6 +124,7 @@ a:focus {
 	overflow: auto;
 }
 
+
 /*=========sidebar---design------*/
 
 #sidebar {
@@ -168,9 +167,10 @@ a:focus {
 
 }
 
-th{
+th {
 	text-align: center;
 }
+
 #sidebar::-webkit-scrollbar {
 	width: 5px;
 	border-radius: 10px;
@@ -242,7 +242,8 @@ th{
 }
 
 .vencido {
-    background-color: #ffcccc; /* Cambia el color a rojo claro para los registros vencidos */
+	background-color: #ffcccc;
+	/* Cambia el color a rojo claro para los registros vencidos */
 }
 
 #sidebar ul li a:hover {
@@ -310,6 +311,66 @@ th{
 
 
 
+
+/* Estilos del modal */
+.modal-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 9999;
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	padding: 20px;
+	border-radius: 8px;
+	z-index: 10000;
+	max-width: 80%;
+	/* Ancho máximo del modal */
+}
+
+/* Estilos del botón */
+.open-button {
+	cursor: pointer;
+	padding: 10px 20px;
+	background-color: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+}
+
+/* Estilo de los campos del formulario */
+.form-input {
+	display: block;
+	margin-bottom: 10px;
+	width: 100%;
+	padding: 5px;
+	font-size: 16px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+	.modal {
+		max-width: 90%;
+		/* Ancho máximo del modal en dispositivos móviles */
+	}
+
+	.open-button {
+		display: block;
+		width: 100%;
+		margin-bottom: 10px;
+	}
+}
 
 .xd-topbar {
 	width: 100%;
@@ -444,7 +505,7 @@ input[type="search"] {
 	display: block;
 	font-size: 9px;
 	border: 0;
-	background-color: #00fb6d;
+	background-color: #fb2e00;
 	min-width: 15px;
 	text-align: center;
 	padding: 1px 5px;
@@ -453,24 +514,43 @@ input[type="search"] {
 	line-height: 14px;
 }
 
-.modal-content{
+.navbar .notification-green {
+	position: absolute;
+	top: 2px;
+	right: 3px;
+	display: block;
+	font-size: 9px;
+	border: 0;
+	background-color: #04fb00;
+	min-width: 15px;
+	text-align: center;
+	padding: 1px 5px;
+	height: 15px;
+	border-radius: 2px;
+	line-height: 14px;
+}
+
+.modal-content {
 	margin-top: 10px;
 	height: 520px;
-	
+
 }
 
 
 .modal-dialog {
-	max-width: 1600px;
+	max-width: 900px;
 	width: 90%;
-	height: 580px;
+	height: 480px;
 	margin: auto;
 	margin-top: 10px;
 	padding: 10px 20px;
-	background-color: rgba(0, 0, 0, 0.548);
-	box-shadow: 0 1px 10px 0 rgba(0, 224, 254, 0.401),
-		0 2px 30px 0 rgba(0, 224, 254, 0.401);
+	background-color: transparent;
 	border-radius: 10px;
+}
+
+
+.container-green{
+	background-color: #00fb6d;
 }
 
 .formulario {
@@ -481,7 +561,7 @@ input[type="search"] {
 
 .formulario__input {
 	width: 100%;
-    background: rgba(202, 194, 194, 0.35);
+	background: rgba(202, 194, 194, 0.35);
 	box-shadow: 3px 0px 30px rgba(248, 242, 241, 0.511);
 	border: 3px solid transparent;
 	border-radius: 3px;
@@ -498,7 +578,7 @@ input[type="search"] {
 	box-shadow: 3px 0px 30px rgba(163, 163, 163, 0.4);
 }
 
-.btn__out{
+.btn__out {
 	border-radius: 10px;
 	width: 150px;
 	background-color: transparent;
@@ -509,7 +589,7 @@ input[type="search"] {
 	transition: .4s ease-in-out;
 }
 
-.btn__out:hover{
+.btn__out:hover {
 	background-color: #aefff8;
 }
 
@@ -763,9 +843,10 @@ input[type="search"] {
 
 
 /*--table design start----*/
-.wrapper{
+.wrapper {
 	margin: auto;
 }
+
 .table-wrapper {
 	background-color: #fff;
 	/* padding: 20px 25px; */
@@ -1001,7 +1082,7 @@ table.table .avatar {
 	border-radius: 3px;
 }
 
-.modal .modal-footer {
+.modal-footer {
 	background: #ecf0f1;
 	border-radius: 0 0 3px 3px;
 }
@@ -1106,14 +1187,15 @@ footer {
 		background-color: rgba(0, 0, 0, 0.5);
 	}
 
-	.btn-success{
+	.btn-success {
 		display: none;
 	}
 
 
 
 
-	.formulario__grupo, .container_gender{
+	.formulario__grupo,
+	.container_gender {
 		width: 100px;
 		font-size: 10px;
 	}

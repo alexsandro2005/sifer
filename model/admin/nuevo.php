@@ -15,15 +15,31 @@ $precio = $_POST["precio"];
 $marca = $_POST["marca"];
 $cantidad = $_POST["cantidad"];
 
-$sentencia = $connection->prepare("INSERT INTO productos(codigo, name_pro, precio, id_estado,id_marca, cantidad) VALUES (?, ?, ?,1, ?, ?);");
-$resultado = $sentencia->execute([$codigo, $name, $precio, $marca, $cantidad]);
+$product_register=$connection->prepare("SELECT * FROM productos WHERE codigo = '$codigo' OR name_pro = '$name'");
+$product_register->execute();
+$product=$product_register->fetchAll();
 
-if($resultado === TRUE){
-	header("location:lista_products.php");
-	exit;
+
+if($product){
+	echo '<script> alert ("// El producto ya se encuentra registrado. //");</script>';
+	echo '<script> window.location= "formulario.php"</script>';
+	 exit;
+
+}elseif($codigo == "" || $name == "" || $precio == "" || $marca == "" || $cantidad == "" ){
+	echo '<script> alert ("// Estimado Usuario, debe ingresar todos los datos. //");</script>';
+	echo '<script> window.location= "formulario.php"</script>';
+	 exit;
+}else{
+
+    $sentencia = $connection->prepare("INSERT INTO productos(codigo, name_pro, precio, id_estado,id_marca, cantidad) VALUES (?, ?, ?,1, ?, ?);");
+    $resultado = $sentencia->execute([$codigo, $name, $precio, $marca, $cantidad]);
+
+    if($resultado === true) {
+        header("location:lista_products.php");
+        exit;
+    } else {
+		echo '<script> alert ("//Algo salió mal. Por favor verifica que la tabla exista //");</script>';
+		echo '<script> window.location= "formulario.php"</script>';
+		exit;
+    }
 }
-else echo "Algo salió mal. Por favor verifica que la tabla exista";
-
-
-?>
-<?php include_once "pie.php" ?>

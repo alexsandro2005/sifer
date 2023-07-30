@@ -1,9 +1,7 @@
 <?php
-
 session_start();
 require_once("../../database/connection.php");
 $db = new Database();
-
 $connection = $db->conectar();
 
 require_once("../../controller/validarSesion.php");
@@ -13,28 +11,14 @@ if (isset($_POST['btncerrar'])) {
 	header("Location:../../index.php");
 }
 
+$sentencia = $connection->query("SELECT venta_documentos.total, venta_documentos.fecha, venta_documentos.id_venta,venta_documentos.fecha_fin,user.name,motorcycles.placa,GROUP_CONCAT(	documentos.codigo, '..',documentos.nombre, '..', documentos_vendidos.existencia SEPARATOR '__') AS documentos FROM venta_documentos INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = venta_documentos.id_venta INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=venta_documentos.documento INNER JOIN motorcycles ON  motorcycles.placa=venta_documentos.placa GROUP BY venta_documentos.id_venta ORDER BY venta_documentos.id_venta;");
+$ventas = $sentencia->fetchAll(PDO::FETCH_OBJ);
+
+
 $sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
 $sql->execute();
 $usua = $sql->fetch(PDO::FETCH_ASSOC);
-$user_report = $connection->prepare("SELECT * FROM user INNER JOIN type_user INNER JOIN state INNER JOIN gender ON user.id_type_user = type_user.id_type_user AND user.id_gender=gender.id_gender AND user.id_state=state.id_state");
-$user_report->execute();
-$reporte = $user_report->fetch(PDO::FETCH_ASSOC);
-
-
-// CONSULTA SQL ( SELECT  PARA TRAER TODOS LOS DATOS DE LAS MOTOS CON SUS RESPECTIVOS DUEÑOS JUNTO CON CADA UNA DE LAS LLAVES FORANEAS QUE ESTAN RELACIONADAS A LA TABLA DE MOTOS DE OTRAS TABLAS EXTERNAS.)
-
-$document = $connection->prepare("SELECT *  FROM documentos");
-$document->execute();
-$vali_docu = $document->fetchAll(PDO::FETCH_ASSOC);
-
-if (isset($_POST['btncerrar'])) {
-    session_destroy();
-    header("Location:../../index.php");
-}
-
-
 ?>
-
 
 <!doctype html>
 <html lang="en">
@@ -57,7 +41,9 @@ if (isset($_POST['btncerrar'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <title>LISTA DOCUMENTOS SIFER-APP</title>
+    <title>ACTUALIZACION SOAT || SIFER-APP</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
     <!----css3---->
     <link rel="stylesheet" href="../../controller/CSS/custom.css">
     <!--google fonts -->
@@ -71,77 +57,80 @@ if (isset($_POST['btncerrar'])) {
 
     <!--font awesome con CDN-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
 </head>
+
 
 <body>
     <div class="wrapper">
 
         <?php
-            require_once('menu.php');
+
+            require_once('./menu.php');
         
         ?>
 
 
                     <div class="xp-breadcrumbbar text-center">
-                        <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="#">LISTADO</a></li>
-                            <li class="breadcrumb-item active" aria-curent="page">DOCUMENTOS</li>
-                        </ol>
+                        <h2 class="page-title"><span>REPORTE ACTUALIZACION DE SOAT </span></h2>
+
                     </div>
+
+
                 </div>
             </div>
+
+
             <!--Ejemplo tabla con DataTables-->
-            <div class="container">
+            <div class="container mt-3">
                 <div class="row">
                     <div class="col-lg-12">
-
                         <div class="table-responsive">
-
-                            <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        
-                                        <label for="selectAll"></label></th>
-                                        <th>Acciones</th>
-                                        <th>Codigo</th>
-                                        <th>nombre</th>
-                                        <th>precio</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    foreach ($vali_docu as $documento) {
-
-                                    ?>
+                            <?php
+                            date_default_timezone_set('America/Bogota');
+                            try {
+                                $fecha_actual = new DateTime();
+                                echo '<table class="table table-striped table-bordered" cellspacing="0" width="100%">';
+                                echo '<thead>
                                         <tr>
-
-                                            <th>
-                                                <form method="get" action="actualizar_docu.php">
-
-                                                    <input type="hidden" name="id_documento" value="<?= $documento['id_documento'] ?>">
-                                                    <button class="button button_actu" onclick="return confirm('¿Desea actualizar el registro del documento legal seleccionado?');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></button>
-                                                </form>
-                                                <form method="get" action="eliminar_docu.php">
-                                                    <input type="hidden" name="id_documento" value="<?= $documento['id_documento'] ?>">
-                                                    <button class="button" onclick="return confirm('¿Desea eliminar el registro del nuevo documento seleccionado?');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></button>
-                                                </form>
-                                            </th>
-                                            <th> <img src="./codigo_barras/barcode.php?text=<?php echo $documento['id_documento']; ?>&size=50&orientation=horizontal&codetype=Code39&print=true&sizefactor=1"></th>
-                                            <th><?= $documento["nombre"] ?></th>
-                                            <th><?= $documento["precio"] ?></th>
-
+                                            <th>Nombre</th>
+                                            <th>Placa</th>
+                                            <th>Fecha Venta</th>
+                                            <th>Fecha Actualizacion</th>
+                                            <th>Dias Restantes</th>
+                                            <th>Total</th>
                                         </tr>
+                                    </thead>';
 
-                                    <?php
+                                echo '<tbody>';
+                                foreach ($ventas as $venta) {
 
-                                    }
-                                    ?>
+                                    $fechaVenta = new DateTime($venta->fecha);
+                                    $fechaVencimiento = new DateTime($venta->fecha_fin);
+                                    $diasRestantes = $fecha_actual->diff($fechaVencimiento)->days;
+
+                                    // Agregar clase CSS si el registro está vencido
+                                    $class = ($fecha_actual > $fechaVencimiento) ? 'vencido' : '';
+
+                                    echo '<tr class="' . $class . '">';
+                                    echo '<td>' . $venta->name . '</td>';
+                                    echo '<td>' . $venta->placa . '</td>';
+                                    echo '<td>' . $fechaVenta->format('Y-m-d H:i:s') . '</td>';
+                                    echo '<td>' . $fechaVencimiento->format('Y-m-d H:i:s') . '</td>';
+                                    echo '<td>' . $diasRestantes . ' dias' . '</td>';
+                                    echo '<td>' . $venta->total . '</td>';
+                                    echo '</tr>';
+                                }
+
+                                echo '</tbody>';
 
 
-                                </tbody>
-                            </table>
+                                echo '</table>';
+                            } catch (PDOException $e) {
+                                echo 'Error' . $e->getMessage();
+                            }
+
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -149,10 +138,13 @@ if (isset($_POST['btncerrar'])) {
 
         </div>
 
-
+        
         <?php
+
             require_once('formularios_crear.php');
+        
         ?>
+
 
         <!-- jQuery, Popper.js, Bootstrap JS -->
         <script src="jquery/jquery-3.3.1.min.js"></script>
@@ -184,6 +176,8 @@ if (isset($_POST['btncerrar'])) {
 
             });
         </script>
+
+
 </body>
 
 </html>

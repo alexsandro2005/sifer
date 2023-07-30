@@ -4,9 +4,6 @@ require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
 
-if (!isset($_POST["codigo"]) == "formreg") {
-    return;
-}
 
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 

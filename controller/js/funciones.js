@@ -45,6 +45,16 @@ function multipletext(e) {
 }
 
 
+// FUNCION PARA PERMITIR SOLO LETRAS Y ESPACIOS EN EL FORMULARIO
+
+function soloLetrasEspacios(event) {
+    const input = event.target;
+    const regex =/^[a-zA-ZÀ-ÿ\s]{5,20}$/; // Expresión regular para letras y espacios
+
+    if (!regex.test(input.value)) {
+        input.value = input.value.replace(/^[a-zA-ZÀ-ÿ\s]{5,20}$/, ''); // Eliminar caracteres no permitidos
+    }
+}
 
 // <!-- FUNCION DE JAVASCRIPT QUE PERMITE INGRESAR SOLO NUMEROS EN EL FORMULARIO ASIGNADO -->
 

@@ -69,8 +69,7 @@
             <header>CREAR SERVICIO DE MOTO</header>
         </div>
         <form method="POST" name="formreg" action="" autocomplete="off" id="formulario" class="formulario">
-
-
+            
             <!-- Container: Marca -->
 			<div class="formulario__grupo" id="grupo__marca">
 				<label for="username" class="formulario__label">Nuevo Servicio de Moto</label>

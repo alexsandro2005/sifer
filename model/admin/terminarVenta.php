@@ -15,7 +15,7 @@ $documento=$_POST['document'];
 $placa=$_POST['placa'];
 $ahora= date("y-m-d h:i:s");
 
-$sentencia = $connection->prepare("INSERT INTO ventas(document,placa,fecha, total) VALUES (?,?,?,?)");
+$sentencia = $connection->prepare("INSERT INTO ventas(document,placa,fecha,total) VALUES (?,?,?,?)");
 $sentencia->execute([$documento,$placa,$ahora,$total]);
 $sentencia = $connection->prepare("SELECT id FROM ventas ORDER BY id DESC LIMIT 1;");
 $sentencia->execute();
@@ -34,5 +34,5 @@ foreach ($_SESSION["carrito"] as $producto) {
 $connection->commit();
 unset($_SESSION["carrito"]);
 $_SESSION["carrito"] = [];
-header("Location: ./vender.php?status=1");
+header("Location: ./ventas.php?status=1");
 ?>
