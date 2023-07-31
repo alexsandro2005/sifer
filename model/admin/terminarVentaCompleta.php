@@ -58,7 +58,6 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 				$result = $checkDuplicateSale->fetch(PDO::FETCH_ASSOC);
 				$contando = $result['count'];
 
-
 				if ($contando > 0) {
 
 					// 	LIPIAMOS EL CARRITO DE PRODUCTOS PARA QUE QUEDE VACIO
@@ -74,7 +73,7 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 					$_SESSION["serviceCart"] = [];
 
 					echo '<script>alert("Los documentos ya fueron registrados a la placa ' . $placa . ' No podemos realizar la venta.");</script>';
-					echo '<script>window.location="ventas_documentos.php"</script>';
+					echo '<script>window.location="ventas_documento.php"</script>';
 					exit(); // Lo colocamos para que se salga de la condicion
 				} else {
 
@@ -101,7 +100,7 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 							// 	LIPIAMOS EL CARRITO DE SERVICIOS PARA QUE QUEDE VACIO
 							unset($_SESSION["serviceCart"]);
 							$_SESSION["serviceCart"] = [];
-							
+
 							echo '<script>alert("Los servicios ya fueron registrados a la placa' . $placa . ' No podemos realizar la venta.");</script>';
 							echo '<script>window.location="historial_documentos.php"</script>';
 							exit(); // Lo colocamos para que se salga de la condicion

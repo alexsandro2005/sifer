@@ -204,30 +204,31 @@
                                     </a>
                                     <?php
 
-                                    $documents = $connection->query("SELECT venta_documentos.total, venta_documentos.fecha, venta_documentos.id_venta,venta_documentos.fecha_fin,user.name,motorcycles.placa,GROUP_CONCAT(	documentos.codigo, '..',documentos.nombre, '..', documentos_vendidos.existencia SEPARATOR '__') AS documentos FROM venta_documentos INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = venta_documentos.id_venta INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=venta_documentos.documento INNER JOIN motorcycles ON  motorcycles.placa=venta_documentos.placa GROUP BY venta_documentos.id_venta ORDER BY venta_documentos.id_venta");
-                                    $ventasDocumentos = $documents->fetchAll(PDO::FETCH_ASSOC);
+                                    $services = $connection->prepare("SELECT * FROM trigger_service LIMIT 5");
+                                    $services->execute();
+                                    $ventasServicio = $services->fetchAll(PDO::FETCH_ASSOC);
 
                                     date_default_timezone_set('America/Bogota');
 
                                     try {
                                         $fecha_actual = new DateTime();
 
-
-
-                                        if (!empty($ventasDocumentos)) {
-                                            foreach ($ventasDocumentos as $ventaDocumento) {
-                                                $fechaVenta = new DateTime($ventaDocumento->fecha);
-                                                $fechaVencimiento = new DateTime($ventaDocumento->fecha_fin);
+                                        echo '<ul class="dropdown-menu">';
+                                        if (!empty($ventasServicio)) {
+                                            foreach ($ventasServicio as $ventServicio) {
+                                                $fechaVenta = new DateTime($ventServicio['fecha']);
+                                                $fechaVencimiento = new DateTime($ventServicio['fecha_fin']);
                                                 $diasRestantes = $fecha_actual->diff($fechaVencimiento)->days;
-                                                echo '<ul class="dropdown-menu">';
-                                                echo '<li>' . '<a>' . 'la moto con la placa' . ' ' . $ventaDocumento->placa . ' ' . 'Tiene' . ' ' . $diasRestantes . ' dias Restantes para actualizar sus documentos' . ' </a>' . '</li>';
+                                               
+                                                echo '<li>' . '<a>' . 'la moto con la placa' . ' ' . $ventServicio['placa'] . ' ' . 'Tiene' . ' ' . $diasRestantes . ' dias Restantes para realizar cambio de aceite' . ' </a>' . '</li>';
                                             }
+                                            echo '<li><a class="btn btn-info" href="historial_cambio_aceite.php">Ver mas -></a></li>';
                                             echo '</ul>';
                                         } else {
                                             echo '<div>';
                                             echo  '<ul class="dropdown-menu">';
 
-                                            echo '<li>' . '<a>' . 'No hay documentos por actualizar' .  '</a>' . '</li>';
+                                            echo '<li>' . '<a>' . 'No hay cambio de aceites disponibles' .  '</a>' . '</li>';
 
                                             echo  '</ul>';
 
@@ -251,7 +252,7 @@
                                     </a>
                                     <?php
 
-                                    $documents = $connection->query("SELECT venta_documentos.total, venta_documentos.fecha, venta_documentos.id_venta,venta_documentos.fecha_fin,user.name,motorcycles.placa,GROUP_CONCAT(	documentos.codigo, '..',documentos.nombre, '..', documentos_vendidos.existencia SEPARATOR '__') AS documentos FROM venta_documentos INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = venta_documentos.id_venta INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=venta_documentos.documento INNER JOIN motorcycles ON  motorcycles.placa=venta_documentos.placa GROUP BY venta_documentos.id_venta ORDER BY venta_documentos.id_venta LIMIT 5;");
+                                    $documents = $connection->query("SELECT ventas.total,ventas.fecha, ventas.id,ventas.fecha_fin,user.name,motorcycles.placa,documentos.nombre,GROUP_CONCAT(documentos.codigo, '..',documentos.nombre, '..', documentos.nombre SEPARATOR '__') AS documentos FROM ventas INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = ventas.id INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=ventas.document INNER JOIN motorcycles ON  motorcycles.placa=ventas.placa GROUP BY ventas.id ORDER BY ventas.id LIMIT 5;");
                                     $ventasDocumentos = $documents->fetchAll(PDO::FETCH_OBJ);
 
                                     date_default_timezone_set('America/Bogota');
@@ -259,7 +260,7 @@
                                     try {
                                         $fecha_actual = new DateTime();
 
-
+                                        echo '<ul class="dropdown-menu">';
 
                                         if (!empty($ventasDocumentos)) {
                                             foreach ($ventasDocumentos as $ventaDocumento) {
@@ -267,13 +268,12 @@
                                                 $fechaVencimiento = new DateTime($ventaDocumento->fecha_fin);
                                                 $diasRestantes = $fecha_actual->diff($fechaVencimiento)->days;
 
-                                                echo '<ul class="dropdown-menu">';
 
                                                 echo '<li>' . '<a>' . 'la moto con la placa' . ' ' . $ventaDocumento->placa . ' ' . 'Tiene' . ' ' . $diasRestantes . ' dias Restantes para actualizar sus documentos' . ' </a>' . '</li>';
-
-                                                echo '<li><a class="btn btn-info" href="historial_documentos.php">Ver mas -></a></li>';
-                                                echo '</ul>';
                                             }
+
+                                            echo '<li><a class="btn btn-info" href="historial_documentos.php">Ver mas -></a></li>';
+                                            echo '</ul>';
                                         } else {
                                             echo '<div>';
                                             echo  '<ul class="dropdown-menu">';

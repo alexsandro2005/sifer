@@ -4,6 +4,7 @@ require_once("../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
 
+
 ?>
 <?php
 
@@ -17,7 +18,7 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
     $docu_user = $_SESSION['id_user'];
 
     // Use prepared statements to avoid SQL injection
-    $passwordUser = $connection->prepare("SELECT password FROM user WHERE document = :docu_user");
+    $passwordUser = $connection->prepare("SELECT * FROM user WHERE document = :docu_user");
     $passwordUser->bindParam(':docu_user', $docu_user);
     $passwordUser->execute();
     $passUser = $passwordUser->fetch(PDO::FETCH_ASSOC);
@@ -25,15 +26,12 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
     if ($_POST['password'] == "" || $_POST['password2'] == "") {
         echo '<script>alert("datos vacios no ingreso la nueva clave.");</script>';
         echo '<script>window.location="recuperar_contrasena.php"</script>';
-        exit(); // Stop further execution
     } elseif ($password !== $passwordTwo) {
         echo '<script>alert("las contraseñas son diferentes, deben ser iguales.");</script>';
         echo '<script>window.location="recuperar_contrasena.php"</script>';
-        exit(); // Stop further execution
     } elseif (password_verify($password, $passUser['password'])) {
         echo '<script>alert("La contraseña ya fue registrada anteriormente.");</script>';
         echo '<script>window.location="recuperar_contrasena.php"</script>';
-        exit(); // Stop further execution
     } elseif (!empty($password)) {
 
         $passwordsTrigger = $connection->prepare("SELECT * FROM trigger_user WHERE document = :docu_user GROUP BY document HAVING COUNT(*) <= 5");
@@ -41,43 +39,55 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
         $passwordsTrigger->execute();
         $passTrigger = $passwordsTrigger->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($passTrigger as $passAuth) {
+        if (empty($passTrigger)) {
+            // encriptacion de la contraseña
+            $encriptaciones = ['cost' => 15];
+            $contra = password_hash($password, PASSWORD_DEFAULT, $encriptaciones);
 
-            if ((password_verify($password,$passAuth['password']))) {
+            // actualizacion de la contraseña en la base de datos
+            $update_pass = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
+            $update_pass->bindParam(':contra', $contra);
+            $update_pass->bindParam(':docu_user', $docu_user);
+            $update_pass->execute();
+            echo '<script>alert("la contraseña ha sido actualizada correctamente.");</script>';
+            echo '<script>window.location="../index.php"</script>';
+        } else {
+            foreach ($passTrigger as $passAuth) {
 
-                $acumulador += 1;
+                if ((password_verify($password, $passAuth['password']))) {
 
-                if ($acumulador > 0) {
-                    echo '<script>alert("la contraseña ya fue registrada anteriormente, ingresa otra por favor");</script>';
-                    echo '<script>window.location="recuperar_contrasena.php"</script>';
-                    exit(); // Stop further execution
-                }else {
-                    // Hash the password
-                    $bcrypt = ['cost' => 15];
-                    $contra = password_hash($password, PASSWORD_DEFAULT, $bcrypt);
+                    $acumulador += 1;
 
-                    // Update the password in the database
-                    $actu_update = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
-                    $actu_update->bindParam(':contra', $contra);
-                    $actu_update->bindParam(':docu_user', $docu_user);
-                    $actu_update->execute();
+                    if ($acumulador > 0) {
+                        echo '<script>alert("la contraseña ya fue registrada anteriormente, ingresa otra por favor");</script>';
+                        echo '<script>window.location="recuperar_contrasena.php"</script>';
+                    } else {
+
+                        // Hash the password
+                        $bcrypt = ['cost' => 15];
+                        $contra = password_hash($password, PASSWORD_DEFAULT, $bcrypt);
+
+                        // Update the password in the database
+                        $actu_update = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
+                        $actu_update->bindParam(':contra', $contra);
+                        $actu_update->bindParam(':docu_user', $docu_user);
+                        $actu_update->execute();
+                        echo '<script>alert("la contraseña ha sido actualizada correctamente.");</script>';
+                        echo '<script>window.location="../index.php"</script>';
+                    }
+                } else {
+                    // encriptacion de la contraseña
+                    $encriptaciones = ['cost' => 15];
+                    $contra = password_hash($password, PASSWORD_DEFAULT, $encriptaciones);
+
+                    // actualizacion de la contraseña en la base de datos
+                    $update_pass = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
+                    $update_pass->bindParam(':contra', $contra);
+                    $update_pass->bindParam(':docu_user', $docu_user);
+                    $update_pass->execute();
                     echo '<script>alert("la contraseña ha sido actualizada correctamente.");</script>';
                     echo '<script>window.location="../index.php"</script>';
-                    exit(); // Stop further execution after redirect
                 }
-            } else {
-                // encriptacion de la contraseña
-                $encriptaciones = ['cost' => 15];
-                $contra = password_hash($password, PASSWORD_DEFAULT, $encriptaciones);
-
-                // actualizacion de la contraseña en la base de datos
-                $update_pass = $connection->prepare("UPDATE user SET password = :contra WHERE document = :docu_user");
-                $update_pass->bindParam(':contra', $contra);
-                $update_pass->bindParam(':docu_user', $docu_user);
-                $update_pass->execute();
-                echo '<script>alert("la contraseña ha sido actualizada correctamente.");</script>';
-                echo '<script>window.location="../index.php"</script>';
-                exit();
             }
         }
     } else {
@@ -90,9 +100,8 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
         $update_pass->bindParam(':contra', $contraseña);
         $update_pass->bindParam(':docu_user', $docu_user);
         $update_pass->execute();
-        echo '<script>alert("la contraseña ha sido actualizada correctamente aprendiz.");</script>';
+        echo '<script>alert("la contraseña ha sido actualizada correctamente.");</script>';
         echo '<script>window.location="../index.php"</script>';
-        exit(); 
     }
 }
 ?>
@@ -115,6 +124,9 @@ if (isset($_POST["inicio"])) {
         echo '<script> alert ("Estimado usuario el documento o nombre de usuario se valida como no registrado.")</script>';
         echo '<script> window.location="cambiar_contrasena.php"</script>';
     }
+} elseif (empty($_SESSION['id_user'])) {
+    echo '<script> alert ("Debe ingresar los datos requeridos")</script>';
+    echo '<script> window.location="cambiar_contrasena.php"</script>';
 }
 
 ?>
@@ -146,7 +158,7 @@ if (isset($_POST["inicio"])) {
                 <h1 class="title"> <span>NUEVO CAMBIO DE CONTRASEÑA</span></h1>
             </header>
 
-            <form action="../controller/recuperar_contrasena.php" method="POST" id="formulario" class="formulario" autocomplete="off">
+            <form action="" method="POST" id="formulario" name="form2" class="formulario" autocomplete="off">
 
                 <!-- Group: password -->
                 <div class="formulario__grupo" id="grupo__password">

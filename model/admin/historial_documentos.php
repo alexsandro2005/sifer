@@ -11,7 +11,7 @@ if (isset($_POST['btncerrar'])) {
 	header("Location:../../index.php");
 }
 
-$sentencia = $connection->query("SELECT venta_documentos.total, venta_documentos.fecha, venta_documentos.id_venta,venta_documentos.fecha_fin,user.name,motorcycles.placa,documentos.nombre,GROUP_CONCAT(	documentos.codigo, '..',documentos.nombre, '..', documentos_vendidos.existencia SEPARATOR '__') AS documentos FROM venta_documentos INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = venta_documentos.id_venta INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=venta_documentos.documento INNER JOIN motorcycles ON  motorcycles.placa=venta_documentos.placa GROUP BY venta_documentos.id_venta ORDER BY venta_documentos.id_venta;");
+$sentencia = $connection->query("SELECT ventas.total,ventas.fecha, ventas.id,ventas.fecha_fin,user.name,motorcycles.placa,documentos.nombre,GROUP_CONCAT(documentos.codigo, '..',documentos.nombre, '..', documentos.nombre SEPARATOR '__') AS documentos FROM ventas INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = ventas.id INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=ventas.document INNER JOIN motorcycles ON  motorcycles.placa=ventas.placa GROUP BY ventas.id ORDER BY ventas.id;");
 $ventas = $sentencia->fetchAll(PDO::FETCH_OBJ);
 
 
@@ -72,7 +72,7 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
 
 
                     <div class="xp-breadcrumbbar text-center">
-                        <h2 class="page-title"><span>REPORTE ACTUALIZACION DE TECNOMECANICA </span></h2>
+                        <h2 class="page-title"><span>REPORTE ACTUALIZACION DE DOCUMENTOS </span></h2>
                     </div>
 
                 </div>
