@@ -49,7 +49,7 @@
             <ul class="collapse list-unstyled menu" id="homeSubmenu25">
                 <li><a href="historial_documentos.php">Historial Soat</a></li>
                 <li><a href="historial_documentos.php">Historial Tecnomecanica</a></li>
-                <li><a href="historial_documentos.php">Historial Cambio de aceite</a></li>
+                <li><a href="historialAceite.php">Historial Cambio de aceite</a></li>
             </ul>
         </li>
 
@@ -368,10 +368,6 @@
                     </div>
                 </div>
             </div>
-
-
-
-
 
             <script>
                 function openFormModal() {
