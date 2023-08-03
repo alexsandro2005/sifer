@@ -3,6 +3,13 @@ session_start();
 require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
+
+require_once("../../controller/validarSesion.php");
+
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
 $sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
 $sql->execute();
 $usua = $sql->fetch(PDO::FETCH_ASSOC);
@@ -98,7 +105,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
         $register_user = $connection->prepare("INSERT INTO motorcycles(placa,barcode,km,id_modelo,id_marca,id_color,id_carroceria,id_cilindraje,id_combustible,id_servicio_moto,document)VALUES('$placa_user','$barcode', '$km_user', '$modelo_user', '$marca_user','$color_user','$moto_carroceria','$moto_cilindraje','$moto_combus','$moto_servicio', '$documento_user')");
         if ($register_user->execute()) {
             echo '<script>alert ("Registro de moto Exitoso");</script>';
-            echo '<script>window.location="index.php"</script>';
+            echo '<script>window.location="list_motos.php"</script>';
         }
     }
 }
@@ -236,13 +243,13 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                     <div class="top">
                         <label for="tipousuario" class="formulario__label">Marca</label>
                         <!-- Botón para mostrar la ventana emergente (Modal) -->
-                        <button type="button" data-toggle="modal" data-target="#formularioMarca">
+                        <button type="button" class="btn btn-dark btn-sm m-2" data-toggle="modal" data-target="#formularioMarca">
                             +Crear
                         </button>
                     </div>
                     <div class="formulario__grupo__input">
                         <select id="control" name="marca" class="formulario__input">
-                            <option value="">Seleccione Marca</option>
+                            <option disabled selected value="">Seleccione Marca</option>
 
                             <?php
                             do {
@@ -259,13 +266,13 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <!-- CONTAINER MODELOS DE MOTOS -->
                 <div class="form-group">
                     <label for="tipousuario" class="formulario__label ">Modelo</label>
-                    <button type="button" data-toggle="modal" data-target="#formularioModelo">
+                    <button type="button" data-toggle="modal" class="btn btn-dark btn-sm m-2" data-target="#formularioModelo">
                         +Crear
                     </button>
 
                     <select id="controlbuscador" name="modelo" class="formulario__input">
 
-                        <option value="">Seleccione Modelo</option>
+                        <option disabled selected value="">Seleccione Modelo</option>
 
                         <?php
                         do {
@@ -285,11 +292,11 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <div class="form-group">
                     <label for="color" class="formulario__label ">Color</label>
                     <!-- Botón para mostrar la ventana emergente (Modal) -->
-                    <button type="button" data-toggle="modal" data-target="#formularioModal">
+                    <button type="button" data-toggle="modal" class="btn btn-dark btn-sm m-2" data-target="#formularioModal">
                         +Crear
                     </button>
                     <select id="buscador" name="color" class="formulario__input">
-                        <option value="">Seleccione Color</option>
+                        <option disabled selected value="">Seleccione Color</option>
                         <?php
                         do {
                         ?>
@@ -307,13 +314,13 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
                     <div class="top">
                         <label for="combustible" class="formulario__label">Combustible</label>
-                        <button type="button" data-toggle="modal" data-target="#formularioCombustible">
+                        <button type="button" data-toggle="modal" class="btn btn-dark btn-sm m-2" data-target="#formularioCombustible">
                             +Crear
                         </button>
                     </div>
 
                     <select id="combustible" name="combustible" class="formulario__input">
-                        <option value="">Seleccione Tipo de Combustible</option>
+                        <option disabled selected value="">Seleccione Tipo de Combustible</option>
                         <?php
                         do {
                         ?>
@@ -332,13 +339,13 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <div class="form-group">
                     <div class="top">
                         <label for="Carroceria" class="formulario__label">Carroceria</label>
-                        <button type="button" data-toggle="modal" data-target="#formularioCarroceria">
+                        <button type="button" data-toggle="modal" class="btn btn-dark btn-sm m-2" data-target="#formularioCarroceria">
                             +Crear
                         </button>
                     </div>
                     <div class="formulario__grupo__input">
                         <select id="carroceria" name="carroceria" class="formulario__input">
-                            <option value="">Seleccione Tipo de Carroceria</option>
+                            <option disabled selected value="">Seleccione Tipo de Carroceria</option>
                             <?php
                             do {
                             ?>
@@ -358,13 +365,13 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <div class="form-group">
                     <div class="top">
                         <label for="Cilindraje" class="formulario__label">Cilindraje</label>
-                        <button type="button" data-toggle="modal" data-target="#formularioCilindraje">
+                        <button type="button" data-toggle="modal" class="btn btn-dark btn-sm m-2" data-target="#formularioCilindraje">
                             +Crear
                         </button>
                     </div>
                     <div class="formulario__grupo__input">
                         <select id="cilindraje" name="cilindraje" class="formulario__input">
-                            <option value="">Seleccione Tipo de Cilindraje</option>
+                            <option disabled selected value="">Seleccione Tipo de Cilindraje</option>
                             <?php
                             do {
                             ?>
@@ -386,13 +393,13 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                             <label for="servicio" class="formulario__label">Servicio de Moto</label>
 
                             <!-- Botón para mostrar la ventana emergente (Modal) -->
-                            <button type="button" data-toggle="modal" data-target="#formularioServicio">
+                            <button type="button" data-toggle="modal" class="btn btn-dark btn-sm m-2" data-target="#formularioServicio">
                                 +Crear
                             </button>
                         </div>
                         <div class="formulario__grupo__input">
                             <select id="servicio" name="servicio" class="formulario__input">
-                                <option value="">Seleccione Tipo de Servicio Moto</option>
+                                <option disabled selected value="">Seleccione Tipo de Servicio Moto</option>
                                 <?php
                                 do {
                                 ?>

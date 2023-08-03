@@ -21,6 +21,13 @@ if ($producto === FALSE) {
 	exit();
 }
 
+require_once("../../controller/validarSesion.php");
+
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
+
 ?>
 <!doctype html>
 <html lang="en">

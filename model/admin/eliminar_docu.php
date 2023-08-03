@@ -15,7 +15,7 @@
     //delete * from user  where id= $documento
 
 
-    $delete=$con->prepare("DELETE  FROM  documentos WHERE id_documento= '".$docu."'");
+    $delete=$con->prepare("DELETE  FROM documentos WHERE id_documento= '".$docu."'");
     $delete-> execute();
     $borrar=$delete -> fetch(PDO::FETCH_ASSOC);
 

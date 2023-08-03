@@ -29,9 +29,9 @@
 
             // Debemos ponerle contraseña al phpMyAdmin ojo hacer respaldo a todas las bases de datos
 
-            $mysqlDatabaseName = 'siferapp';
+            $mysqlDatabaseName = 'sifer-app';
             $mysqlUserName = 'root';
-            $mysqlPassword = 'luchito2005';
+            $mysqlPassword = 'lucho2005533';
             $mysqlHostName = 'localhost';
             $mysqlExportPath = 'respaldo.sql';
 

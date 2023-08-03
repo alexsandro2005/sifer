@@ -79,6 +79,26 @@ $reporte = $user_report->fetch(PDO::FETCH_ASSOC);
         </div>
     </div>
     </div>
+    <div class="container-fluid">
+
+        <div class="mt-3 col-xs-12 ml-2">
+            <a href="crear_cliente.php" class="btn btn-block btn-info">Registrar Cliente</a>
+        </div>
+
+        <div class="mt-3 col-xs-12 ml-2">
+            <?php
+            if (isset($_GET['mensaje'])) {
+                $mensaje_recibido = urldecode($_GET['mensaje']);
+                echo '<div class="alert alert-success">' . $mensaje_recibido . '</div>';
+            }
+            ?>
+        </div>
+
+
+    </div>
+
+
+
     <!--Ejemplo tabla con DataTables-->
     <div class="container">
         <div class="row">

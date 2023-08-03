@@ -3,7 +3,7 @@ session_start();
 require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
-require_once("../../controller/validarSesion.php");
+
 $sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
 $sql->execute();
 $usua = $sql->fetch(PDO::FETCH_ASSOC);
@@ -21,7 +21,6 @@ if (isset($_POST['btncerrar'])) {
     session_destroy();
     header("Location:../../index.php");
 }
-
 ?>
 <?php
 if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {

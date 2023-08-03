@@ -205,7 +205,7 @@ if (!$servicios) {
             <thead>
                 <tr>
                     <th class="cantidad">CANT</th>
-                    <th class="producto">DOCUMENTO</th>
+                    <th class="producto">SEGURO</th>
                     <th class="precio">TOTAL</th>
                 </tr>
             </thead>

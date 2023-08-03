@@ -26,7 +26,7 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 	if ($CarritoVacio) {
 		echo '<script>alert("Debes seleccionar productos, servicios y documentos para realizar la venta");</script>';
 		echo '<script>window.location="vender_completo.php"</script>';
-	} else {
+	} else{
 		// VARIABLE QUE TRAEN LOS DATOS DE LA MOTO Y EL VENDEDOR PARA REALIZAR LA CONTRASEÑA 
 		$total = $_POST["total"];
 		$documento = $_POST['document'];
@@ -53,22 +53,22 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 				$codigoDocumentoEnCarrito = $documentoEnCarrito->codigo;
 
 				// Realizamos la consulta para verificar si ya existe un registro con el mismo código de documento y placa
-				$checkDuplicateSale = $connection->prepare("SELECT COUNT(*) AS count FROM trigger_documents WHERE codigo_documento = ? AND placa = ?");
-				$checkDuplicateSale->execute([$codigoDocumentoEnCarrito, $placa]);
+				$checkDuplicateSale = $connection->prepare("SELECT COUNT(*) AS count FROM trigger_documents WHERE codigo_documento = ? AND placa = ? AND estado = ?");
+				$checkDuplicateSale->execute([$codigoDocumentoEnCarrito,$placa,1]);
 				$result = $checkDuplicateSale->fetch(PDO::FETCH_ASSOC);
 				$contando = $result['count'];
 
 				if ($contando > 0) {
 
-					// 	LIPIAMOS EL CARRITO DE PRODUCTOS PARA QUE QUEDE VACIO
+					// 	LIMPIAMOS EL CARRITO DE PRODUCTOS PARA QUE QUEDE VACIO
 					unset($_SESSION["productCart"]);
 					$_SESSION["productCart"] = [];
 
-					// 	LIPIAMOS EL CARRITO DE DOCUMENTOS PARA QUE QUEDE VACIO
+					// 	LIMPIAMOS EL CARRITO DE DOCUMENTOS PARA QUE QUEDE VACIO
 					unset($_SESSION["documentCart"]);
 					$_SESSION["documentCart"] = [];
 
-					// 	LIPIAMOS EL CARRITO DE SERVICIOS PARA QUE QUEDE VACIO
+					// 	LIMPIAMOS EL CARRITO DE SERVICIOS PARA QUE QUEDE VACIO
 					unset($_SESSION["serviceCart"]);
 					$_SESSION["serviceCart"] = [];
 
@@ -82,8 +82,8 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 						$codigoservicioEnCarrito = $servicioEnCarrito->code_service;
 
 						// Realizamos la consulta para verificar si ya existe un registro con el mismo código de documento y placa
-						$checkServices = $connection->prepare("SELECT COUNT(*) AS count FROM trigger_service WHERE codigo_service = ? AND placa = ?");
-						$checkServices->execute([$codigoservicioEnCarrito, $placa]);
+						$checkServices = $connection->prepare("SELECT COUNT(*) AS count FROM trigger_service WHERE codigo_service = ? AND placa = ? AND estado = ?");
+						$checkServices->execute([$codigoservicioEnCarrito, $placa,1]);
 						$resultServices = $checkServices->fetch(PDO::FETCH_ASSOC);
 						$conteo = $resultServices['count'];
 
@@ -132,16 +132,18 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 								$sentenciaExistencia->execute([$producto->cantidad, $producto->id]);
 							}
 
+							$estado = 1;
 							// MODULO PARA REGISTRAR LOS DOCUMENTOS AGREGADOS
 							$registroVenta = $connection->prepare("INSERT INTO documentos_vendidos(id_documento,id_venta,existencia) VALUES (?,?,?)");
 							// REGISTRAMOS LA VENTA DEL DOCUMENTO A LA PLACA PARA VALIDAR EN UNA PROXIMA VENTA QUE LA PLACA NO TENGA DOCUMENTO REGISTRADO
-							$triggerDocumento = $connection->prepare("INSERT INTO trigger_documents(placa,codigo_documento)VALUES(?,?)");
+							$triggerDocumento = $connection->prepare("INSERT INTO trigger_documents(placa,codigo_documento,fecha_registro,fecha_fin,estado)VALUES(?,?,?,?,?)");
 							foreach ($_SESSION["documentCart"] as $documento) {
 								$total += $documento->total;
 								$registroVenta->execute([$documento->id_documento, $idVenta, $documento->cantidad]);
-								$triggerDocumento->execute([$placa, $documento->codigo]);
+								$triggerDocumento->execute([$placa, $documento->codigo,$fecha,$fechaFin,$estado]);
 							}
 
+							// PARA REGISTRAR LOS SERVICIOS VENDIDOS DEBEMOS REALIZAR UNA CONSULTA CON LA PLACA AL CUAL ESTAMOS REGISTRANDOLE LA VENTA
 
 							$servicio = $connection->prepare("SELECT * FROM motorcycles INNER JOIN servicio_moto ON motorcycles.id_servicio_moto = servicio_moto.id_servicio_moto WHERE placa = '$placa'");
 							$servicio->execute();
@@ -149,6 +151,7 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 
 							$conteoservicio = $fetch_servicio['id_servicio_moto'];
 
+							// NOS TRAEMOS EL SERVICIO QUE PRESTA LA MOTO Y DEPENDIENDO ESO TOMAMOS DECISIONES
 							if ($conteoservicio <= 3) {
 
 								// CREAMOS UNA VARIABLE QUE NOS TRAIGA LA FECHA ACTUAL
@@ -162,6 +165,32 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 								// Convertimos los objetos DateTime en cadenas con el formato adecuado
 								$fecha_inicial = $fechaInicial->format('Y-m-d H:i:s');
 								$fecha_final = $fechaFinal->format('Y-m-d H:i:s');
+
+								$terminarVenta = $connection->prepare("INSERT INTO servicios_vendidos(id_servicio,id_venta,existencia) VALUES(?,?,?)");
+								$aceite = $connection->prepare("INSERT INTO trigger_service(codigo_service,placa,fecha,fecha_fin,nombre,estado) VALUES(?,?,?,?,?,?)");
+								foreach ($_SESSION["serviceCart"] as $servicio) {
+									$total += $servicio->total;
+									$terminarVenta->execute([$servicio->code_service, $idVenta, $servicio->cantidad]);
+									$aceite->execute([$servicio->code_service, $placa, $fecha_inicial, $fecha_final, $servicio->service,$estado]);
+								}
+
+								// 	EJECUTAMOS LOS TRES TRANSACCIONES DE REGISTRO DE DATOS CON EL COMMIT
+								$connection->commit();
+
+								// 	LIMPIAMOS EL CARRITO DE PRODUCTOS PARA QUE QUEDE VACIO
+								unset($_SESSION["productCart"]);
+								$_SESSION["productCart"] = [];
+
+								// 	LIMPIAMOS EL CARRITO DE DOCUMENTOS PARA QUE QUEDE VACIO
+								unset($_SESSION["documentCart"]);
+								$_SESSION["documentCart"] = [];
+
+								// 	LIMPIAMOS EL CARRITO DE SERVICIOS PARA QUE QUEDE VACIO
+								unset($_SESSION["serviceCart"]);
+								$_SESSION["serviceCart"] = [];
+
+								header("Location: ./listaVentas_completas.php?status=1");
+
 							} elseif ($conteoservicio == 4) {
 
 								// CREAMOS UNA VARIABLE QUE NOS TRAIGA LA FECHA ACTUAL
@@ -175,33 +204,32 @@ if ((isset($_POST["MM_forms"])) && ($_POST["MM_forms"] == "cartForm")) {
 								// Convertimos los objetos DateTime en cadenas con el formato adecuado
 								$fecha_inicial = $fechaInicial->format('Y-m-d H:i:s');
 								$fecha_final = $fechaFinal->format('Y-m-d H:i:s');
+
+								$terminarVenta = $connection->prepare("INSERT INTO servicios_vendidos(id_servicio,id_venta,existencia) VALUES(?,?,?)");
+								$aceite = $connection->prepare("INSERT INTO trigger_service(codigo_service,placa,fecha,fecha_fin,nombre) VALUES(?,?,?,?,?,?)");
+								foreach ($_SESSION["serviceCart"] as $servicio) {
+									$total += $servicio->total;
+									$terminarVenta->execute([$servicio->code_service, $idVenta, $servicio->cantidad]);
+									$aceite->execute([$servicio->code_service, $placa, $fecha_inicial, $fecha_final, $servicio->service,1]);
+								}
+
+								// 	EJECUTAMOS LOS TRES TRANSACCIONES DE REGISTRO DE DATOS CON EL COMMIT
+								$connection->commit();
+
+								// 	LIPIAMOS EL CARRITO DE PRODUCTOS PARA QUE QUEDE VACIO
+								unset($_SESSION["productCart"]);
+								$_SESSION["productCart"] = [];
+
+								// 	LIPIAMOS EL CARRITO DE DOCUMENTOS PARA QUE QUEDE VACIO
+								unset($_SESSION["documentCart"]);
+								$_SESSION["documentCart"] = [];
+
+								// 	LIPIAMOS EL CARRITO DE SERVICIOS PARA QUE QUEDE VACIO
+								unset($_SESSION["serviceCart"]);
+								$_SESSION["serviceCart"] = [];
+
+								header("Location: ./listaVentas_completas.php?status=1");
 							}
-
-
-							$terminarVenta = $connection->prepare("INSERT INTO servicios_vendidos(id_servicio,id_venta,existencia) VALUES(?,?,?)");
-							$aceite = $connection->prepare("INSERT INTO trigger_service(codigo_service,placa,fecha,fecha_fin,nombre) VALUES(?,?,?,?,?)");
-							foreach ($_SESSION["serviceCart"] as $servicio) {
-								$total += $servicio->total;
-								$terminarVenta->execute([$servicio->code_service, $idVenta, $servicio->cantidad]);
-								$aceite->execute([$servicio->code_service, $placa, $fecha_inicial, $fecha_final, $servicio->service]);
-							}
-
-							// 	EJECUTAMOS LOS TRES TRANSACCIONES DE REGISTRO DE DATOS CON EL COMMIT
-							$connection->commit();
-
-							// 	LIPIAMOS EL CARRITO DE PRODUCTOS PARA QUE QUEDE VACIO
-							unset($_SESSION["productCart"]);
-							$_SESSION["productCart"] = [];
-
-							// 	LIPIAMOS EL CARRITO DE DOCUMENTOS PARA QUE QUEDE VACIO
-							unset($_SESSION["documentCart"]);
-							$_SESSION["documentCart"] = [];
-
-							// 	LIPIAMOS EL CARRITO DE SERVICIOS PARA QUE QUEDE VACIO
-							unset($_SESSION["serviceCart"]);
-							$_SESSION["serviceCart"] = [];
-
-							header("Location: ./listaVentas_completas.php?status=1");
 						}
 					}
 				}

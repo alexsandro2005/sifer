@@ -9,8 +9,8 @@ $connection = $db->conectar();
 require_once("../../controller/validarSesion.php");
 
 if (isset($_POST['btncerrar'])) {
-	session_destroy();
-	header("Location:../../index.php");
+    session_destroy();
+    header("Location:../../index.php");
 }
 
 $sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
@@ -57,7 +57,7 @@ if (isset($_POST['btncerrar'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <title>LISTA DOCUMENTOS SIFER-APP</title>
+    <title>LISTA SEGUROS SIFER-APP</title>
     <!----css3---->
     <link rel="stylesheet" href="../../controller/CSS/custom.css">
     <!--google fonts -->
@@ -77,113 +77,112 @@ if (isset($_POST['btncerrar'])) {
     <div class="wrapper">
 
         <?php
-            require_once('menu.php');
-        
+        require_once('menu.php');
+
         ?>
 
-
-                    <div class="xp-breadcrumbbar text-center">
-                        <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="#">LISTADO</a></li>
-                            <li class="breadcrumb-item active" aria-curent="page">DOCUMENTOS</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            <!--Ejemplo tabla con DataTables-->
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-
-                        <div class="table-responsive">
-
-                            <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        
-                                        <label for="selectAll"></label></th>
-                                        <th>Acciones</th>
-                                        <th>Codigo</th>
-                                        <th>nombre</th>
-                                        <th>precio</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    foreach ($vali_docu as $documento) {
-
-                                    ?>
-                                        <tr>
-
-                                            <th>
-                                                <form method="get" action="actualizar_docu.php">
-
-                                                    <input type="hidden" name="id_documento" value="<?= $documento['id_documento'] ?>">
-                                                    <button class="button button_actu" onclick="return confirm('¿Desea actualizar el registro del documento legal seleccionado?');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></button>
-                                                </form>
-                                                <form method="get" action="eliminar_docu.php">
-                                                    <input type="hidden" name="id_documento" value="<?= $documento['id_documento'] ?>">
-                                                    <button class="button" onclick="return confirm('¿Desea eliminar el registro del nuevo documento seleccionado?');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></button>
-                                                </form>
-                                            </th>
-                                            <th> <img src="./codigo_barras/barcode.php?text=<?php echo $documento['id_documento']; ?>&size=50&orientation=horizontal&codetype=Code39&print=true&sizefactor=1"></th>
-                                            <th><?= $documento["nombre"] ?></th>
-                                            <th><?= $documento["precio"] ?></th>
-
-                                        </tr>
-
-                                    <?php
-
-                                    }
-                                    ?>
-
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div class="xp-breadcrumbbar text-center">
+            <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">LISTADO</a></li>
+                <li class="breadcrumb-item active" aria-curent="page">SEGUROS</li>
+            </ol>
         </div>
+    </div>
+    </div>
+    <!--Ejemplo tabla con DataTables-->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="table-responsive">
+
+                    <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+
+                                <label for="selectAll"></label></th>
+                                <th>Acciones</th>
+                                <th>Codigo</th>
+                                <th>nombre</th>
+                                <th>precio</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            foreach ($vali_docu as $documento) {
+
+                            ?>
+                                <tr>
+
+                                    <th>
+                                        <form method="get" action="actualizar_docu.php">
+
+                                            <input type="hidden" name="id_documento" value="<?= $documento['id_documento'] ?>">
+                                            <button class="button button_actu" onclick="return confirm('¿Desea actualizar el seguro del documento legal seleccionado?');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></button>
+                                        </form>
+                                        <form method="get" action="eliminar_docu.php">
+                                            <input type="hidden" name="id_documento" value="<?= $documento['id_documento'] ?>">
+                                            <button class="button" onclick="return confirm('¿Desea eliminar el registro del nuevo documento seleccionado?');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></button>
+                                        </form>
+                                    </th>
+                                    <th> <img src="./codigo_barras/barcode.php?text=<?php echo $documento['id_documento']; ?>&size=50&orientation=horizontal&codetype=Code39&print=true&sizefactor=1"></th>
+                                    <th><?= $documento["nombre"] ?></th>
+                                    <th><?= $documento["precio"] ?></th>
+
+                                </tr>
+
+                            <?php
+
+                            }
+                            ?>
 
 
-        <?php
-            require_once('formularios_crear.php');
-        ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- jQuery, Popper.js, Bootstrap JS -->
-        <script src="jquery/jquery-3.3.1.min.js"></script>
-        <script src="popper/popper.min.js"></script>
-        <script src="bootstrap/js/bootstrap.min.js"></script>
+    </div>
 
-        <!-- datatables JS -->
-        <script type="text/javascript" src="datatables/datatables.min.js"></script>
 
-        <!-- para usar botones en datatables JS -->
-        <script src="datatables/Buttons-1.5.6/js/dataTables.buttons.min.js"></script>
-        <script src="datatables/JSZip-2.5.0/jszip.min.js"></script>
-        <script src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>
-        <script src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>
-        <script src="datatables/Buttons-1.5.6/js/buttons.html5.min.js"></script>
+    <?php
+    require_once('formularios_crear.php');
+    ?>
 
-        <!-- código JS propìo-->
-        <script type="text/javascript" src="main.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $(".xp-menubar").on('click', function() {
-                    $("#sidebar").toggleClass('active');
-                    $("#content").toggleClass('active');
-                });
+    <!-- jQuery, Popper.js, Bootstrap JS -->
+    <script src="jquery/jquery-3.3.1.min.js"></script>
+    <script src="popper/popper.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
 
-                $('.xp-menubar,.body-overlay').on('click', function() {
-                    $("#sidebar,.body-overlay").toggleClass('show-nav');
-                });
+    <!-- datatables JS -->
+    <script type="text/javascript" src="datatables/datatables.min.js"></script>
 
+    <!-- para usar botones en datatables JS -->
+    <script src="datatables/Buttons-1.5.6/js/dataTables.buttons.min.js"></script>
+    <script src="datatables/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>
+    <script src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>
+    <script src="datatables/Buttons-1.5.6/js/buttons.html5.min.js"></script>
+
+    <!-- código JS propìo-->
+    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".xp-menubar").on('click', function() {
+                $("#sidebar").toggleClass('active');
+                $("#content").toggleClass('active');
             });
-        </script>
+
+            $('.xp-menubar,.body-overlay').on('click', function() {
+                $("#sidebar,.body-overlay").toggleClass('show-nav');
+            });
+
+        });
+    </script>
 </body>
 
 </html>

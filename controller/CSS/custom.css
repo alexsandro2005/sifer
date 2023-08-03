@@ -194,13 +194,14 @@ th {
 }
 
 #sidebar .sidebar-header {
-	padding: 20px;
+	padding: 15px;
 	background-color: #000000;
 	border: 2px solid rgba(255, 255, 255, 0.65);
 	box-shadow: 0 0 1rem #000000ec;
 	border-bottom: 1px solid #eee;
 	cursor: pointer;
 	text-align: center;
+
 
 }
 
@@ -268,7 +269,8 @@ th {
 
 
 #sidebar ul.component {
-	padding: 20px 0px;
+	padding: 10px 0px;
+	margin-top: -10px;
 }
 
 #sidebar ul li a {

@@ -49,7 +49,7 @@ if (isset($_POST['btncerrar'])) {
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-	<title>CREAR PROUDCTO</title>
+	<title>CREAR PRODUCTO</title>
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
 	<!----css3---->
@@ -126,7 +126,7 @@ if (isset($_POST['btncerrar'])) {
 				<div class="form-group">
 					<label for="tipousuario" class="formulario__label ">Marca de Producto</label>
 					<!-- Botón para mostrar la ventana emergente (Modal) -->
-					<button type="button" data-toggle="modal" data-target="#formularioMarcaProducto">
+					<button type="button" data-toggle="modal" class="btn btn-dark btn-sm m-2" data-target="#formularioMarcaProducto">
 						+Crear
 					</button>
 					<div class="formulario__grupo__input">
@@ -155,7 +155,7 @@ if (isset($_POST['btncerrar'])) {
 				</div>
 				<br>
 				<input class="btn btn-info mb-4 border" type="submit" value="Guardar">
-				<a href="./lista_products.php" class="btn btn-warning mb-4 border ">Cancelar</a>
+				<a href="./lista_products.php" class="btn btn-danger mb-4 border ">Cancelar</a>
 			</form>
 		</div>
 

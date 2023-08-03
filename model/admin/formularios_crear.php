@@ -180,7 +180,7 @@
 
                             <label for="username" class="formulario__label">Nuevo Modelo</label>
                             <div class="formulario__grupo-input">
-                                <input type="tel" class="formulario__input" id="inputYear" minlength="4" maxlength="4" max="" oninput="validarAnio(event)" name="modelo" required placeholder="Ingrese el nuevo modelo">
+                                <input type="tel" class="formulario__input"  id="inputYear" minlength="4" maxlength="4" max="" oninput="validarAnio(event)" name="modelo" required placeholder="Ingrese el nuevo modelo">
                                 <i class="formulario__validacion-estado fas fa-times-circle"></i>
                             </div>
                             <p class="formulario__input-error">El nuevo modelo debe contener solo 4 numeros</p>
@@ -307,7 +307,7 @@
                             <!-- CONTAINER CILINDRAJE  -->
                             <label for="username" class="formulario__label">Nuevo Cilindraje</label>
                             <div class="formulario__grupo-input">
-                                <input type="number" min="100" max="1000" class="formulario__input" maxlength="4" onchange="validarCilindraje()" name="cilindraje" required id="cilindraje" placeholder="Ingrese el nuevo cilindraje">
+                                <input type="number" min="100" max="1000" minlength="3" oninput="maxlengthNumber(this);" class="formulario__input" maxlength="4" onchange="validarCilindraje()" name="cilindraje" required id="cilindraje" placeholder="Ingrese el nuevo cilindraje">
                                 <i class="formulario__validacion-estado fas fa-times-circle"></i>
                             </div>
                             <p id="mensajeError"></p>

@@ -91,43 +91,61 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
                     try {
                         $fecha_actual = new DateTime();
                         echo '<table class="table table-striped table-bordered" cellspacing="0" width="100%">';
-                        echo '<thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Placa</th>
-                                            <th>Fecha Venta</th>
-                                            <th>Fecha Actualizacion</th>
-                                            <th>Dias Restantes</th>
-                                        </tr>
-                                    </thead>';
 
-                        echo '<tbody>';
                         date_default_timezone_set('America/Bogota');
-                        foreach ($ventas as $venta) {
 
-                            $fechaVenta = new DateTime($venta['fecha']);
-                            $fechaVencimiento = new DateTime($venta['fecha_fin']);
-                            $diasRestantes = $fecha_actual->diff($fechaVencimiento)->days;
+                        if (!empty($ventas)) {
+                            foreach ($ventas as $venta) {
 
-                            // Agregar clase CSS si el registro está vencido
-                            $class = ($fecha_actual > $fechaVencimiento) ? 'vencido' : '';
+                                echo '<thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Placa</th>
+                                    <th>Fecha Venta</th>
+                                    <th>Fecha Actualizacion</th>
+                                    <th>Dias Restantes</th>
+                                </tr>
+                            </thead>';
 
-                            echo '<tr class="' . $class . '">';
-                            echo '<td>' . $venta['nombre'] . '</td>';
-                            echo '<td>' . $venta['placa'] . '</td>';
-                            echo '<td>' . $fechaVenta->format('Y-m-d H:i:s') . '</td>';
-                            echo '<td>' . $fechaVencimiento->format('Y-m-d H:i:s') . '</td>';
-                            echo '<td>' . $diasRestantes . ' dias' . '</td>';
+                                echo '<tbody>';
+
+                                $fechaVenta = new DateTime($venta['fecha']);
+                                $fechaVencimiento = new DateTime($venta['fecha_fin']);
+                                $diasRestantes = $fecha_actual->diff($fechaVencimiento)->days;
+
+                                // Agregar clase CSS si el registro está vencido
+                                $class = ($fecha_actual > $fechaVencimiento) ? 'vencido' : '';
+
+                                echo '<tr class="' . $class . '">';
+                                echo '<td>' . $venta['nombre'] . '</td>';
+                                echo '<td>' . $venta['placa'] . '</td>';
+                                echo '<td>' . $fechaVenta->format('Y-m-d H:i:s') . '</td>';
+                                echo '<td>' . $fechaVencimiento->format('Y-m-d H:i:s') . '</td>';
+                                echo '<td>' . $diasRestantes . ' dias' . '</td>';
+                                echo '</tr>';
+                            }
+
+                            echo '</tbody>';
+                        }else{
+                            echo '<thead>
+                            <tr>
+                                <th class=" dt-body-center">No hay registros</th>
+                            </tr>
+                        </thead>';
+
+                            echo '<tbody>';
+                            echo '<td>No hay registro de Cambio de aceite</td>';
+
                             echo '</tr>';
                         }
 
                         echo '</tbody>';
-
-
-                        echo '</table>';
-                    } catch (PDOException $e) {
+                        }
+                    catch (PDOException $e) {
                         echo 'Error' . $e->getMessage();
                     }
+
+                    echo '</table>';
 
                     ?>
                 </div>

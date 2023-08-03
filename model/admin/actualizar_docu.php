@@ -116,7 +116,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
             <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">Actualizar</a></li>
-                <li class="breadcrumb-item active" aria-curent="page">Documento</li>
+                <li class="breadcrumb-item active" aria-curent="page">Seguro</li>
             </ol>
         </div>
 
@@ -133,7 +133,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <!-- Container: Code Document -->
 
                 <div class="form-group">
-                    <label for="document" class="formulario__label">Codigo de documento Legal</label>
+                    <label for="document" class="formulario__label">Codigo de Seguro</label>
                     <div class="formulario__grupo-input">
                         <input autofocus type="number" autofocus value="<?php echo $actu_documento ?>" readonly maxlength="3" oninput="maxlengthNumber(this);" class="formulario__input" name="id_documento" id="id" required placeholder="Ingrese el codigo del documento legal">
                         <i class="formulario__validacion-estado fas fa-times-circle"></i>
@@ -144,7 +144,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
                 <div class="form-group">
                     <!-- Container: Document -->
 
-                    <label for="username" class="formulario__label">Nombre Documento Legal</label>
+                    <label for="username" class="formulario__label">Nombre Seguro</label>
                     <div class="formulario__grupo-input">
                         <input type="text" class="formulario__input" value="<?php echo $documento_data['nombre'] ?>" readonly maxlength="20" oninput="mayusculas();" name="nombre" required id="marca" placeholder="Ingrese nombre">
                         <i class="formulario__validacion-estado fas fa-times-circle"></i>

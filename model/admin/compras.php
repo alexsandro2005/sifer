@@ -1,628 +1,287 @@
 <?php
+
 session_start();
 require_once("../../database/connection.php");
 $db = new Database();
+
 $connection = $db->conectar();
-
-$sentencia = $connection->query("SELECT * FROM productos;");
-$productos = $sentencia->fetchAll(PDO::FETCH_OBJ);
-
-
-$consul = $connection->prepare("SELECT * FROM user WHERE id_type_user = 2");
-$consul->execute();
-$name = $consul->fetch();
-
-$consul1 = $connection->prepare("SELECT * FROM motorcycles");
-$consul1->execute();
-$placa = $consul1->fetch();
 
 $sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
 $sql->execute();
 $usua = $sql->fetch(PDO::FETCH_ASSOC);
-?>
-
-
-<!----CONSULTAS SQL TIPO USUARIOS, GENERO, PAIS, CIUDAD Y ESTADO---->
-<?php
-if(isset($_POST['btncerrar']))
-
-{
-    session_destroy();
-    header("Location:../../index.php");
-}
-
-
-$control = $connection->prepare("SELECT * FROM type_user");
-$control->execute();
-$type_user = $control->fetch(PDO::FETCH_ASSOC);
-
-
-$comando = $connection->prepare("SELECT * FROM datetime_entry INNER JOIN user INNER JOIN type_user ON datetime_entry.document = user.document AND user.id_type_user = type_user.id_type_user ORDER BY id_entry DESC");
+$user_report = $connection->prepare("SELECT * FROM user INNER JOIN type_user INNER JOIN state INNER JOIN gender ON user.id_type_user = type_user.id_type_user AND user.id_gender=gender.id_gender AND user.id_state=state.id_state");
+$user_report->execute();
+$reporte = $user_report->fetch(PDO::FETCH_ASSOC);
+$connection = $db->conectar();
+$query = $connection->prepare("SELECT * FROM marca");
+$query->execute();
+$fila = $query->fetch();
+$comando = $connection->prepare("SELECT * FROM datetime_entry INNER JOIN user INNER JOIN type_user ON datetime_entry.document = user.document AND user.id_type_user = type_user.id_type_user ORDER BY id_entry  DESC LIMIT 6");
 $comando->execute();
 $resultado = $comando->fetch(PDO::FETCH_ASSOC);
 
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
+
+
+// SE HACE ENVIO DEL NUMERO DE DOCUMENTO POR EL METODO GET Y SE LE ASIGNA ESE VALOR A OTRA VARIABLE
+$producto = $_GET['producto'];
+
+
+$comprar_productos = $connection->prepare("SELECT * FROM productos INNER JOIN marca ON productos.id_marca = marca.id_marca AND productos.id_marca=marca.id_marca WHERE productos.id = '$producto'");
+$comprar_productos->execute();
+$comprar = $comprar_productos->fetch(PDO::FETCH_ASSOC);
+
 ?>
 <?php
 
-$select_gender = $connection->prepare("SELECT * FROM gender");
-$select_gender->execute();
-$gender = $select_gender->fetch(PDO::FETCH_ASSOC);
-?>
-<?php
-if (!isset($_SESSION["carrito"])) $_SESSION["carrito"] = [];
-$granTotal = 0;
-?>
-<div class="col-xs-12">
-	<?php
-	if (isset($_GET["status"])) {
-		if ($_GET["status"] === "1") {
-	?>
-			<div class="alert alert-success">
-				<strong>¡Correcto!</strong> Venta realizada correctamente
-			</div>
-		<?php
-		} else if ($_GET["status"] === "2") {
-		?>
-			<div class="alert alert-info">
-				<strong>Venta cancelada</strong>
-			</div>
-		<?php
-		} else if ($_GET["status"] === "3") {
-		?>
-			<div class="alert alert-info">
-				<strong>Retiroso exitoso</strong>, Producto quitado de la lista.
-			</div>
-		<?php
-		} else if ($_GET["status"] === "4") {
-		?>
-			<div class="alert alert-warning">
-				<strong>Error:</strong> El producto que buscas no existe
-			</div>
-		<?php
-		} else if ($_GET["status"] === "5") {
-		?>
-			<div class="alert alert-danger">
-				<strong>Error: </strong>El producto está agotado
-			</div>
-		<?php
+
+if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
+
+
+
+	$idProduct = $_POST['idProduct'];
+	$cantidad = $_POST['cantidadActual'];
+	$agregar = $_POST['agregar'];
+	$cantidad_Final = $cantidad + $agregar;
+
+
+	if ($cantidad_Final >= 50) {
+		echo '<script>alert ("La compra no se puede realizar ya que supera el limite de 50 unidades ");</script>';
+		echo '<script>window.location="lista_products.php"</script>';
+	} else {
+		$db_validation = $connection->prepare("SELECT * FROM productos WHERE id = '$idProduct'");
+		$db_validation->execute();
+
+		$register_validation = $db_validation->fetchAll();
+
+		if ($register_validation) {
+			$actu_update = $connection->prepare("UPDATE productos SET cantidad = '$cantidad_Final' WHERE id = '$idProduct'");
+			if ($actu_update->execute()) {
+				echo '<script>alert ("Compra Exitosa");</script>';
+				echo '<script>window.location="lista_products.php"</script>';
+			} else {
+				echo '<script>alert ("No se realizo la compra");</script>';
+				echo '<script>window.location="lista_products.php"</script>';
+			}
+		} elseif ($agregar == "" || $cantidad_Final == "") {
+
+			echo '<script>alert ("Debes ingresar todos los datos");</script>';
+			echo '<script>windows.location="lista_products.php"</script>';
 		} else {
-		?>
-			<div class="alert alert-danger">
-				<strong>Error:</strong> Algo salió mal mientras se realizaba la venta
-			</div>
-	<?php
+			echo '<script>alert ("Estimado Usuario el producto no se encuentra registrado.");</script>';
+			echo '<script>windows.location="lista_products.php"</script>';
 		}
 	}
-	?>
-
-	<!doctype html>
-	<html lang="en">
-
-	<head>
-		<!-- Required meta tags -->
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-		<title>MENU PRINCIPAL ADMINISTRADOR</title>
-		<!-- Bootstrap CSS -->
-		<link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
-		<!----css3---->
-		<link rel="stylesheet" href="../../controller/CSS/custom.css">
-		<!--google fonts -->
-		<link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-		<link rel="stylesheet" href="./css/2.css">
-
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-		<link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
-
-		<!--google material icon-->
-		<link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
-
-	</head>
-
-	<body>
-		<div class="wrapper">
-
-			<!-------sidebar--design------------>
-
-			<div id="sidebar">
-				<div class="sidebar-header">
-					<h3><img src="../../controller/image/favicon.png" class="img-fluid" /><span><?php echo $usua['type_user'] ?> <span><?php echo $usua['name'] ?></span></h3>
-					<h3><span></span></h3>
-				</div>
-				<ul class="list-unstyled component m-0">
-					<li class="active">
-						<a href="index.php" class="dashboard"><i class="material-icons">dashboard</i>Menu Principal </a>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmen15" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">dashboard</i>Act. Recientes
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmen15">
-							<li><a href="act_trabajador.php">Actividades Trabajadores</a></li>
-							<li><a href="act_cliente.php">Actividades Clientes</a></li>
-
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmen11" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">dashboard</i>Crear
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmen11">
-							<li><a href="crear_color.php">Crear Color</a></li>
-							<li><a href="crear_modelo.php">Crear Modelo</a></li>
-							<li><a href="crear_marca.php">Crear Marca</a></li>
-							<li><a href="crear_combustible.php">Crear Combustible</a></li>
-							<li><a href="crear_tipo.php">Crear T.Usuario</a></li>
-							<li><a href="categoria.php">Categoria Producto</a></li>
-							<li><a href="carroceria.php">Crear Carroceria</a></li>
-							<li><a href="crear_cilindraje.php">Crear Cilindraje</a></li>
-							<li><a href="servicio_moto.php">Crear Serv. Moto</a></li>
-
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmenu2" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-							<i class="material-icons">apps</i>Usuarios
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmenu2">
-							<li><a href="crear_usu.php">Crear Usuario</a></li>
-							<li><a href="lista_usu.php">Lista usuarios</a></li>
-							<li><a href="lista_tipo_usu.php">Lista de tipos de usuarios</a></li>
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmenu9" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">date_range</i>Clientes
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmenu9">
-							<li><a href="crear_cliente.php">Crear cliente</a></li>
-							<li><a href="lista_clientes.php">Lista de Clientes</a></li>
-						</ul>
-					</li>
+}
 
 
 
-					<li class="dropdown">
-						<a href="#homeSubmenu4" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-							<i class="material-icons">equalizer</i>Motos
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmenu4">
-							<li><a href="list_motos.php">Lista de Motos</a></li>
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmen17" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">dashboard</i>Productos
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmen17">
-							<li><a href="lista_products.php">Lista de Productos</a></li>
-							<li><a href="formulario.php">Crear Producto</a></li>
-
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmenu12" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">date_range</i>Servicios
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmenu12">
-							<li><a href="crear_servicio.php">Crear Servicio</a></li>
-							<li><a href="lista_servicios.php">Lista de Servicios</a></li>
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmenu19" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">date_range</i>Documentos Legales
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmenu19">
-							<li><a href="documentos.php">Crear Documento Legal</a></li>
-							<li><a href="lista_servicios.php">Lista de Documentos legales</a></li>
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmenu5" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-							<i class="material-icons">border_color</i>Ventas
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmenu5">
-							<li><a href="vender.php">Generar Venta</a></li>
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmenu7" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">content_copy</i>Reportes
-						</a>
-
-						<ul class="collapse list-unstyled menu" id="homeSubmenu7">
-							<li><a href="reporte_usu.php">Reporte Usuarios</a></li>
-							<li><a href="#">Inventario Productos</a></li>
-							<li><a href="#">Reporte de Ventas</a></li>
-						</ul>
-					</li>
-
-					<li class="dropdown">
-						<a href="#homeSubmenu15" data-toggle="collapse" class="dropdown-toggle">
-							<i class="material-icons">content_copy</i>Copia de seguridad
-						</a>
-						<ul class="collapse list-unstyled menu" id="homeSubmenu15">
-							<li><a href="respaldo/respaldo.php">Generar Copia</a></li>
-						</ul>
-					</li>
-
-				</ul>
-			</div>
-
-			<!-------sidebar--design- close----------->
+?>
 
 
 
-			<!-------page-content start----------->
 
-			<div id="content">
+<!doctype html>
+<html lang="en">
 
-				<!------top-navbar-start----------->
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-				<div class="top-navbar">
-					<div class="xd-topbar">
-						<div class="row">
-							<div class="col-2 col-md-1 col-lg-1 order-2 order-md-1 align-self-center">
-								<div class="xp-menubar">
-									<span class="material-icons text-white">signal_cellular_alt</span>
-								</div>
-							</div>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+	<!-- CSS personalizado -->
+	<link rel="stylesheet" href="main.css">
 
-							<div class="col-md-5 col-lg-3 order-3 order-md-2">
-								<div class="xp-searchbar">
-									<form>
-										<div class="input-group">
+	<!--datables CSS básico-->
+	<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css" />
+	<!--datables estilo bootstrap 4 CSS-->
+	<link rel="stylesheet" type="text/css" href="datatables/DataTables-1.10.18/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" href="../../controller/css/custom.css">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+	<title>COMPRAR PRODUCTO</title>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
+	<!----css3---->
+	<link rel="stylesheet" href="../../controller/CSS/custom.css">
+	<!--google fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+	<link rel="shortcut icon" href="../../controller/image/favicon.png" type="image/x-icon">
 
-										</div>
-									</form>
-								</div>
-							</div>
+	<!--google material icon-->
+	<link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
 
+	<!--font awesome con CDN-->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 
-							<div class="col-10 col-md-6 col-lg-8 order-1 order-md-3">
-								<div class="xp-profilebar text-right">
-									<nav class="navbar p-0">
-										<ul class="nav navbar-nav flex-row ml-auto">
-											<li class="dropdown nav-item active">
-												<a class="nav-link" href="#" data-toggle="dropdown">
-													<span class="material-icons">notifications</span>
-													<span class="notification">4</span>
-												</a>
-												<ul class="dropdown-menu">
-													<li><a href="#">You Have 4 New Messages</a></li>
-													<li><a href="#">You Have 4 New Messages</a></li>
-													<li><a href="#">You Have 4 New Messages</a></li>
-													<li><a href="#">You Have 4 New Messages</a></li>
-												</ul>
-											</li>
+</head>
 
-											<li class="nav-item">
-												<a class="nav-link" href="#">
-													<span class="material-icons">question_answer</span>
-												</a>
-											</li>
+<body>
+	<div class="wrapper">
 
-											<li class="dropdown nav-item">
-												<a class="nav-link" href="#" data-toggle="dropdown">
-													<img src="../../controller/image/favicon.png" style="width:40px; border-radius:50%;" />
-													<span class="xp-user-live"></span>
-												</a>
-												<ul class="dropdown-menu small-menu">
-													<li>
-														<form method="POST">
-															<tr><br>
-																<td colspan="2" align="center">
-																	<input type="submit" value="Cerrar sesion" id="btn_quote" name="btncerrar" class="btn__out" />
-																</td>
-															</tr>
-														</form>
-													</li>
+		<!-------sidebar--design- close----------->
 
-												</ul>
-											</li>
+		<?php
+
+		include('./menu.php');
+		?>
+
+		<div class="xp-breadcrumbbar text-center">
+			<h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="#">Datos</a></li>
+				<li class="breadcrumb-item active" aria-curent="page">Productos</li>
+			</ol>
+		</div>
+	</div>
+	</div>
 
 
-										</ul>
-									</nav>
-								</div>
-							</div>
 
-						</div>
+	<div class=" container-fluid mt-4">
+		<div class="col-xs-12 m-auto">
+			<h1>Comprar <?php echo $comprar['name_pro'] ?> </h1>
 
-
-						<div class="xp-breadcrumbbar text-center">
-							<h4 class="page-title"><span>GENERAR VENTA</span></h4>
-							<ol class="breadcrumb">
-							</ol>
-						</div>
+			<form method="POST" autocomplete="off" action="">
 
 
+				<input type="hidden" name="idProduct" value="<?php echo $comprar['id'] ?>">
+				<!-- Container: BarCode -->
+				<div class="form-group">
+					<label for="document" class="formulario__label">Nombre Producto</label>
+					<div class="formulario__grupo-input">
+						<input type="text" value="<?php echo $comprar['name_pro'] ?>" readonly placeholder="Escribe el codigo" class="formulario__input" required>
+						<i class="formulario__validacion-estado fas fa-times-circle"></i>
 					</div>
 				</div>
-				<!------top-navbar-end----------->
+
+				<!-- Container: Cantidad Producto -->
+				<div class="form-group">
+					<label for="document" class="formulario__label">Cantidad Actual:</label>
+					<div class="formulario__grupo-input">
+						<input type="number" maxlength="4" value="<?php echo $comprar['cantidad'] ?>" readonly minlength="1" oninput="maxlengthNumber(this);" placeholder="Ingrese por favor la cantidad" oninput="maxlengthNumber(this);" onkeypress="return(multiplenumber(event));" class="formulario__input" name="cantidadActual" id="cantidad" required>
+						<i class="formulario__validacion-estado fas fa-times-circle"></i>
+					</div>
+				</div>
+
+				<!-- Container: Cantidad Producto -->
+				<div class="form-group">
+					<label for="document" class="formulario__label">Agregar Cantidad:</label>
+					<div class="formulario__grupo-input">
+						<input type="number" maxlength="4" autofocus minlength="1" autofocus oninput="maxlengthNumber(this);" placeholder="Ingrese por favor la cantidad" oninput="maxlengthNumber(this);" onkeypress="return(multiplenumber(event));" class="formulario__input" name="agregar" id="cantidad" required>
+						<i class="formulario__validacion-estado fas fa-times-circle"></i>
+					</div>
+				</div>
 				<br>
-				<form method="post" action="agregarAlCarrito.php">
-					<label for="codigo">Código de barras:</label>
-					<input autocomplete="off" autofocus class="form-control" name="codigo" required type="text" id="codigo" placeholder="Escribe el código">
-
-				</form>
-				<br><br>
-				<table class="table table-bordered">
-					<thead>
-						<tr>
-							<th>ID del producto</th>
-							<th>Código</th>
-							<th>Nombre del producto</th>
-							<th>Precio del producto</th>
-							<th>marca</th>
-							<th>Total</th>
-							<th>Cantidad</th>
-							<th>quitar</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						<?php foreach ($_SESSION["carrito"] as $indice => $producto) {
-							$granTotal += $producto->total;
-						?>
-							<tr>
-								<td><?php echo $producto->id ?></td>
-								<td><?php echo $producto->codigo ?></td>
-								<td><?php echo $producto->name_pro ?></td>
-								<td><?php echo $producto->precio ?></td>
-								<td><?php echo $producto->id_marca ?></td>
-								<td><?php echo $producto->total ?></td>
-								<td><?php echo $producto->cantidad ?></td>
-								<td><a class="btn btn-danger" href="<?php echo "quitarDelCarrito.php?indice=" . $indice ?>" Style='color:white;'>Eliminar<i class="fa fa-trash"></i></a></td>
-							</tr>
-						<?php } ?>
-					</tbody>
-				</table>
-
-				<h3>Total: <?php echo $granTotal; ?></h3>
-				<form action="./terminarVenta.php" method="POST">
-					<br>
-					<label>Vendedor:</label>
-					<select name="document" id="" class='form-control'>
-						<option> Seleccione el vendedor</option>
-						<?php
-
-						do {
-
-						?>
-							<option value=<?php echo ($name['document']) ?>?><?php echo ($name['name']) ?> </option>
-						<?php
-						} while ($name = $consul->fetch());
-
-						?>
-					</select>
-					<br>
-					<label>Placa de la Moto</label>
-					<select name="placa" id="" class='form-control'>
-						<option> Seleccione la placa</option>
-						<?php
-
-						do {
-
-						?>
-							<option value=<?php echo ($placa['placa']) ?>><?php echo ($placa['placa']) ?> </option>
-						<?php
-						} while ($placa = $consul1->fetch());
-
-						?>
-					</select>
-					<br>
-					<input name="total" type="hidden" value="<?php echo $granTotal; ?>">
-					<button type="submit" class="btn btn-info">Terminar venta</button>
-					<a href="./cancelarVenta.php" class="btn btn-danger">Cancelar venta</a>
-				</form>
-			</div>
-
-			<!----add-modal start--------->
-
-			<div class="modal fade" tabindex="-1" id="addEmployeeModal" role="dialog">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title">Crear Usuario</h5>
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-						</div>
-						<div class="container">
-							<form method="POST" name="form	reg" action="" autocomplete="off" id="formulario" class="formulario">
-
-								<!-- Group: Document -->
-								<div class="formulario__grupo" id="grupo__document">
-									<label for="document" class="formulario__label">Numero de documento</label>
-									<div class="formulario__grupo-input">
-										<input type="number" class="formulario__input" name="document" id="document" required placeholder="Ingrese su numero de documento">
-										<i class="formulario__validacion-estado fas fa-times-circle"></i>
-									</div>
-									<!-- <p class="formulario__input-error">El numero de documento debe ser de 6 a 10 numeros.</p> -->
-								</div>
 
 
-								<!-- Group: Nombre -->
-								<div class="formulario__grupo" id="grupo__name">
-									<label for="name" class="formulario__label">Nombre completo</label>
-									<div class="formulario__grupo-input">
-										<input type="text" class="formulario__input" name="name" required id="name" placeholder="Ingrese sus nombres">
-										<i class="formulario__validacion-estado fas fa-times-circle"></i>
-									</div>
-									<p class="formulario__input-error">Debe ingresar su nombre completo, o en preferencia su primer nombre y apellido.</p>
-								</div>
-
-
-								<!-- Group: surname -->
-
-								<div class="formulario__grupo" id="grupo__surnam">
-									<label for="password2" class="formulario__label">Apellidos completos</label>
-									<div class="formulario__grupo-input">
-										<input type="password" class="formulario__input" name="surnam" required id="surnam" placeholder="Ingrese sus apellidos">
-										<i class="formulario__validacion-estado fas fa-times-circle"></i>
-									</div>
-									<p class="formulario__input-error">Ambas contraseñas deben ser iguales.</p>
-								</div>
-
-								<!-- Group: Username -->
-								<div class="formulario__grupo" id="grupo__username">
-									<label for="username" class="formulario__label">Nombre de Usuario</label>
-									<div class="formulario__grupo-input">
-										<input type="text" class="formulario__input" name="username" required id="username" placeholder="Ingrese su nombre">
-										<i class="formulario__validacion-estado fas fa-times-circle"></i>
-									</div>
-									<p class="formulario__input-error">El usuario tiene que ser de 4 a 10 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-								</div>
-
-
-
-								<!-- Group: Password -->
-
-								<div class="formulario__grupo" id="grupo__password">
-									<label for="password" class="formulario__label">Contraseña de Usuario</label>
-									<div class="formulario__grupo-input">
-										<input type="password" class="formulario__input" name="password" required id="password" placeholder="Ingrese su contraseña">
-										<i class="formulario__validacion-estado fas fa-times-circle"></i>
-									</div>
-									<p class="formulario__input-error">La contraseña tiene que ser de 4 a 10 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-								</div>
-
-
-								<!-- Group: telephone -->
-
-								<div class="formulario__grupo" id="grupo__telephone">
-									<label for="telephone" class="formulario__label">Numero de Telefono</label>
-									<div class="formulario__grupo-input">
-										<input type="text" class="formulario__input" name="telephone" required id="telephone" placeholder="Ingrese su numero de contacto">
-										<i class="formulario__validacion-estado fas fa-times-circle"></i>
-									</div>
-									<p class="formulario__input-error">El nombre tiene que ser de 4 a 20 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-								</div>
-
-
-								<!-- Group: email -->
-								<div class="formulario__grupo" id="grupo__email">
-									<label for="email" class="formulario__label">Correo Electronico</label>
-									<div class="formulario__grupo-input">
-										<input type="text" class="formulario__input" name="email" required id="email" placeholder="Ingrese su correo electronico">
-										<i class="formulario__validacion-estado fas fa-times-circle"></i>
-									</div>
-									<p class="formulario__input-error">El nombre tiene que ser de 4 a 20 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-								</div>
-
-
-								<!-- Group Type User -->
-
-								<div class="formulario__grupo select">
-									<label for="tipousuario" class="formulario__label label">Tipo de Usuario</label>
-									<div class="formulario__grupo__input">
-										<select name="id_type_user" class="formulario__input">
-											<option value="">Seleccione Tipo de Usuario</option>
-
-											<?php
-											do {
-											?>
-
-												<option value="<?php echo ($type_user['id_type_user']) ?>"><?php echo ($type_user['type_user']) ?></option>
-
-
-											<?php
-											} while ($type_user = $control->fetch(PDO::FETCH_ASSOC));
-											?>
-										</select>
-									</div>
-								</div>
-
-								<!-- Group Type Gender -->
-
-								<div class="fomulario__grupo container_gender">
-									<label for="" class="formulario__label label">
-										<option value="">Selecccion Tipo de Genero</option>
-									</label>
-									<div class="formulario__grupo__input formulario__input">
-										<?php
-										do {
-
-										?>
-											<input class="gender" name="id_gender" type="radio" value="<?php echo ($gender['id_gender']) ?>"> <?php echo ($gender['gender']) ?></input>
-										<?php
-
-										} while ($gender = $select_gender->fetch(PDO::FETCH_ASSOC));
-										?>
-									</div>
-								</div>
-
-
-								<!-- Group: State_user -->
-								<div class="state">
-									<input class="cajas" type="hidden" value="2" name="id_state" placeholder="Ingrese su estado">
-								</div>
-
-								<div class="formulario__grupo formulario__grupo-btn-enviar">
-									<input type="submit" name="validar" value="Crear Usuario" class="formulario__btn"></input>
-									<input type="hidden" name="MM_insert" value="formreg">
-									<a href="login.php" data-dismiss="modal" class="return">Regresar</a>
-									<!-- <p class="formulario__mensaje-exito" id="formulario__mensaje-exito">Formulario enviado exitosamente!</p> -->
-								</div>
-						</div>
-						</form>
-					</div>
-				</div>
-
-
-			</div>
+				<input type="submit" name="validar" value="Comprar <?php echo $comprar['name_pro'] ?>" class="btn btn-info mb-4">
+				<input type="hidden" name="MM_insert" value="formreg">
+				<a href="./lista_products.php" class="btn btn-danger mb-4 border ">Cancelar</a>
+			</form>
 		</div>
 
-		<!------main-content-end----------->
+	</div>
 
-		<!----footer-design------------->
+	<?php
+	require_once('./formularios_crear.php');
+	?>
 
-		<footer class="footer">
-			<div class="container-fluid">
-				<div class="footer-in">
-					<p class="mb-0"> Derechos reservados &copy Sifer-App 2023</p>
-				</div>
-			</div>
-		</footer>
+	<!-- jQuery, Popper.js, Bootstrap JS -->
+	<script src="jquery/jquery-3.3.1.min.js"></script>
+	<script src="popper/popper.min.js"></script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
 
-</div>
+	<!-- datatables JS -->
+	<script type="text/javascript" src="datatables/datatables.min.js"></script>
+	<script>
+		function maxlengthNumber(obj) {
 
-</div>
-<!-------complete html----------->
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="./js/jquery-3.3.1.slim.min.js"></script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/jquery-3.3.1.min.js"></script>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$(".xp-menubar").on('click', function() {
-			$("#sidebar").toggleClass('active');
-			$("#content").toggleClass('active');
+			if (obj.value.length > obj.maxLength) {
+				obj.value = obj.value.slice(0, obj.maxLength);
+				alert("Debe ingresar solo el numeros de digitos requeridos");
+			}
+		}
+	</script>
+
+	<script>
+		function maxcelNumber(obj) {
+
+			if (obj.value.length > obj.maxLength) {
+				obj.value = obj.value.slice(0, obj.maxLength);
+				alert("Debe ingresar solo 10 numeros.");
+			}
+		}
+	</script>
+	<!-- FUNCION DE JAVASCRIPT QUE PERMITE INGRESAR SOLO LETRAS -->
+
+	<script>
+		function multipletext(e) {
+			key = e.keyCode || e.which;
+
+			teclado = String.fromCharCode(key).toLowerCase();
+
+			letras = "qwertyuiopasdfghjklñzxcvbnm ";
+
+			especiales = "8-37-38-46-164-46";
+
+			teclado_especial = false;
+
+			for (var i in especiales) {
+				if (key == especiales[i]) {
+					teclado_especial = true;
+					alert("Debe ingresar solo letras y espacios en el campo");
+
+					break;
+				}
+			}
+
+			if (letras.indexOf(teclado) == -1 && !teclado_especial) {
+				return false;
+				alert("Debe ingresar solo letras y espacios en el campo");
+			}
+		}
+	</script>
+
+	<script>
+		function solonumeros(evt) {
+			if (window.event) {
+				keynum = evt.keyCode;
+			} else {
+				keynum = evt.wich;
+			}
+		}
+	</script>
+	<!-- para usar botones en datatables JS -->
+	<script src="datatables/Buttons-1.5.6/js/dataTables.buttons.min.js"></script>
+	<script src="datatables/JSZip-2.5.0/jszip.min.js"></script>
+	<script src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>
+	<script src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>
+	<script src="datatables/Buttons-1.5.6/js/buttons.html5.min.js"></script>
+
+	<!-- código JS propìo-->
+	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".xp-menubar").on('click', function() {
+				$("#sidebar").toggleClass('active');
+				$("#content").toggleClass('active');
+			});
+
+			$('.xp-menubar,.body-overlay').on('click', function() {
+				$("#sidebar,.body-overlay").toggleClass('show-nav');
+			});
+
 		});
-
-		$('.xp-menubar,.body-overlay').on('click', function() {
-			$("#sidebar,.body-overlay").toggleClass('show-nav');
-		});
-
-	});
-</script>
-
+	</script>
 </body>
 
 </html>

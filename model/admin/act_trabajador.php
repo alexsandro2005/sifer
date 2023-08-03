@@ -17,11 +17,12 @@ $comando = $connection->prepare("SELECT * FROM datetime_entry INNER JOIN user IN
 $comando->execute();
 $resultado = $comando->fetch(PDO::FETCH_ASSOC);
 
+require_once('../../controller/validarSesion.php');
+
 if (isset($_POST['btncerrar'])) {
     session_destroy();
     header("Location:../../index.php");
 }
-
 ?>
 
 

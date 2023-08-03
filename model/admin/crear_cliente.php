@@ -268,7 +268,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
                 <!-- Container: State_user -->
                 <div class="state">
-                    <input class="cajas" type="hidden" value="2" name="id_state" placeholder="Ingrese su estado">
+                    <input class="cajas" type="hidden" value="1" name="id_state" placeholder="Ingrese su estado">
                 </div>
 
 

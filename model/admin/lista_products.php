@@ -12,7 +12,12 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
 $user_report = $connection->prepare("SELECT * FROM user INNER JOIN type_user INNER JOIN state INNER JOIN gender ON user.id_type_user = type_user.id_type_user AND user.id_gender=gender.id_gender AND user.id_state=state.id_state");
 $user_report->execute();
 $reporte = $user_report->fetch(PDO::FETCH_ASSOC);
+require_once("../../controller/validarSesion.php");
 
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
 
 
 
@@ -94,8 +99,19 @@ $reporte = $user_report->fetch(PDO::FETCH_ASSOC);
                     echo  '<ul>';
 
                     foreach ($comprar_productos as $desgastados) {
-                        echo '<li>' . '- ' . 'El producto' . ' ' . $desgastados['name_pro'] . ' ' . 'Esta agotado, tiene una cantidad de' . ' ' .  $desgastados['cantidad'] . ' ' . 'unidades' . '</li>';
+
+                        echo '<div d-flex flex-row>
+                        <li>' . '- ' . 'El producto' . ' ' . $desgastados['name_pro'] . ' ' . 'Esta agotado, tiene una cantidad de' . ' ' .  $desgastados['cantidad'] . ' ' . 'unidades' . '</li>
+
+                        <form action="compras.php" method="GET">
+                     
+                        <input type="hidden" name="producto" value="'. $desgastados['id'].'">
+                        <button class="button button_actu" onclick="return confirm(\'¿Deseas comprar ' . $desgastados['name_pro'] . '?\');" type="submit">Comprar</button>
+                        </form>
+                        
+                        </div>';
                     }
+
                     echo '</ul>';
                     echo '</div>';
                 } else {
@@ -140,6 +156,7 @@ $reporte = $user_report->fetch(PDO::FETCH_ASSOC);
 
                                 <label for="selectAll"></label></th>
                                 <th>Actions</th>
+                                <th>Comprar</th>
                                 <th>codigo de barras</th>
                                 <th>Producto</th>
                                 <th>Precio</th>
@@ -175,6 +192,16 @@ $reporte = $user_report->fetch(PDO::FETCH_ASSOC);
                                             <button class="button" onclick="return confirm('¿Desea eliminar el producto seleccionado?');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></button>
                                         </form>
                                         </a>
+                                    </th>
+
+
+                                    <th>
+                                        <form method="get" action="compras.php">
+
+                                            <input type="hidden" name="producto" value="<?= $rows['id'] ?>">
+                                            <button class="button button_actu" onclick="return confirm('¿Desea realizar la compra');" type="submit"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></button>
+                                        </form>
+
                                     </th>
                                     <th> <img src="./codigo_barras/barcode.php?text=<?php echo $rows['codigo']; ?>&size=50&orientation=horizontal&codetype=Code39&print=true&sizefactor=1"></th>
                                     <th><?= $rows["name_pro"] ?></th>

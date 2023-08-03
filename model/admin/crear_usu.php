@@ -7,7 +7,12 @@ $database = new Database();
 // VARIABLE QUE CONTIENE LA CONEXION A LA BASE DE DATOS SIFER-APP
 $connection = $database->conectar();
 // CONSULTA SQL PARA INVOCAR LOS TIPOS DE USUARIO REGISTRADOS
+require_once("../../controller/validarSesion.php");
 
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
 
 $type_user = $connection->prepare("SELECT * FROM type_user");
 $type_user->execute();
@@ -294,7 +299,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
                 <!-- Container: State_user -->
                 <div class="state">
-                    <input class="cajas" type="hidden" value="2" name="id_state" placeholder="Ingrese su estado">
+                    <input class="cajas" type="hidden" value="1" name="id_state" placeholder="Ingrese su estado">
                 </div>
 
 

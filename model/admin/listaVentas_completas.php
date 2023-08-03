@@ -136,7 +136,7 @@ $usua = $sql->fetch(PDO::FETCH_ASSOC);
                                 <th>Nombre</th>
                                 <th>Placa</th>
                                 <th>Productos vendidos</th>
-                                <th>Documentos vendidos</th>
+                                <th>Seguros vendidos</th>
                                 <th>Servicios vendidos</th>
                                 <th>Total</th>
                                 <th>Ticket</th>

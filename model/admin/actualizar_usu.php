@@ -2,6 +2,11 @@
 session_start();
 require_once("../../database/connection.php");
 require_once("../../controller/validarSesion.php");
+
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
 $db = new Database();
 $connection = $db->conectar();
 $sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");

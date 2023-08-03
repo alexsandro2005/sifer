@@ -9,10 +9,10 @@ $connection = $db->conectar();
 <?php
 
 if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
-    // Ensure that $acumulador is initialized
+    // Creamos la variable que tendra el acumulador
     $acumulador = 0;
 
-    // DECLARATION OF THE VALUES OF THE VARIABLES DEPENDING ON THE FIELD TYPE IN THE FORM
+    // DECLARAMOS LAS VARIABLES 
     $password = $_POST['password'];
     $passwordTwo = $_POST['password2'];
     $docu_user = $_SESSION['id_user'];

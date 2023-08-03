@@ -1,10 +1,9 @@
 <?php
-
 session_start();
 require_once("../../database/connection.php");
-require_once('../../controller/validarSesion.php');
 $db = new Database();
 $connection = $db->conectar();
+
 $sql = $connection->prepare("SELECT * FROM user,type_user WHERE  username ='" . $_SESSION['usuario'] . "' AND user.id_type_user = type_user.id_type_user");
 $sql->execute();
 $usua = $sql->fetch(PDO::FETCH_ASSOC);
@@ -70,7 +69,7 @@ if (isset($_POST['btncerrar'])) {
         require_once('./menu.php');
 
         ?>
-        
+
         <div class="xp-breadcrumbbar text-center">
             <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
             <ol class="breadcrumb">
@@ -136,9 +135,9 @@ if (isset($_POST['btncerrar'])) {
 
 
     <?php
-    
+
     require_once('formularios_crear.php');
-    
+
     ?>
 
     <!-- jQuery, Popper.js, Bootstrap JS -->

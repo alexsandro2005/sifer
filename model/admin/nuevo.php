@@ -35,6 +35,7 @@ if($product){
     $resultado = $sentencia->execute([$codigo, $name, $precio, $marca, $cantidad]);
 
     if($resultado === true) {
+		echo '<script> alert ("//Producto registrado exitosamente. //");</script>';
         header("location:lista_products.php");
         exit;
     } else {

@@ -75,6 +75,14 @@ $reporte = $user_report->fetch(PDO::FETCH_ASSOC);
     </div>
     </div>
 
+    <div class="container-fluid">
+
+        <div class="mt-3 col-xs-12 ml-2">
+            <a href="crear_usu.php" class="btn btn-block btn-info">Registrar Usuario</a>
+        </div>
+
+    </div>
+
 
     <!--Ejemplo tabla con DataTables-->
     <div class="container">

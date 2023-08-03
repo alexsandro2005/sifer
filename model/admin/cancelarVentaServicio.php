@@ -1,11 +1,9 @@
 <?php
+
 session_start();
 
-unset($_SESSION["carrito_servicio"]);
-$_SESSION["carrito_venta"]=[];
+unset($_SESSION["carritoServicio"]);
+$_SESSION["carritoServicio"] = [];
 
-header("Location:./vender_servicio.php?status=2");
-
-
-
+header("Location: ./vender_servicio.php?status=2");
 ?>

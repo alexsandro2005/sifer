@@ -2,6 +2,13 @@
 
 session_start();
 
+require_once("../../controller/validarSesion.php");
+
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
+
 
 // ELIMININAMOS LOS PRODUCTOS QUE ESTEN AGREGADOS
 

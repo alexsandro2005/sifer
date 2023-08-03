@@ -5,14 +5,13 @@ require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
 
-
 date_default_timezone_set('America/Bogota');
 ?>
 
 <?php
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
-    $nombre = $_POST['name'];
+    $nombre = $_POST['name']; 
     $precio = $_POST['precio'];
     $codigo = $_POST['codigo'];
     $cantidad = $_POST['cantidad'];
@@ -83,7 +82,7 @@ if (isset($_POST['btncerrar'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <title>REGISTRAR DOCUMENTO || SIFER-APP</title>
+    <title>REGISTRAR SEGURO || SIFER-APP</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../../controller/CSS/bootstrap.min.css">
     <!----css3---->
@@ -113,7 +112,7 @@ if (isset($_POST['btncerrar'])) {
             <h2 class="page-title"><span>Bienvenido <?php echo $usua['type_user'] ?> <?php echo $usua['name'] ?></span></h2>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">Registrar</a></li>
-                <li class="breadcrumb-item active" aria-curent="page">Documentos</li>
+                <li class="breadcrumb-item active" aria-curent="page">Seguros</li>
             </ol>
         </div>
 
@@ -122,19 +121,17 @@ if (isset($_POST['btncerrar'])) {
 
     <div class="container-fluid mt-4">
         <div class="col-xs-12">
-            <h1>Nuevo Documento</h1>
+            <h1>Nuevo Seguro</h1>
             <form method="post" action="" autocomplete="off" name="formreg">
                 <label for="codigo">Código de barras:</label>
                 <input class="form-control" name="codigo" maxlength="8" required type="number" oninput="maxlengthNumber(this);" id="codigo" placeholder="Escribe el codigo">
 
-                <label for="descripcion">Nombre del documento:</label>
+                <label for="descripcion">Nombre del Seguro:</label>
                 <input required id="descripcion" name="name" cols="30" maxlength="20" rows="5" onkeypress="return(multipletext(event));" class="form-control" placeholder="Escriba el nombre del producto"></input>
 
                 <label for="precioVenta">Precio del documento:</label>
                 <input class="form-control" name="precio" maxlength="7" required type="number" oninput="maxlengthNumber(this);" id="precioVenta" placeholder="Precio ">
 
-
-                <label for="precioVenta">Cantidad:</label>
                 <input class="form-control" name="cantidad" required type="hidden" value="1" maxlength="4" oninput="maxlengthNumber(this);" id="existencia" placeholder="Cantidad o existencia">
 
                 <ul class="container mt-3">

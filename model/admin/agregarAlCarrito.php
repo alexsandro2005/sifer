@@ -4,6 +4,13 @@ require_once("../../database/connection.php");
 $db = new Database();
 $connection = $db->conectar();
 
+require_once("../../controller/validarSesion.php");
+
+if (isset($_POST['btncerrar'])) {
+	session_destroy();
+	header("Location:../../index.php");
+}
+
 
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 

@@ -101,7 +101,7 @@ if ((isset($_POST["addDocuments"])) && ($_POST["addDocuments"] == "formDocuments
 
 
 
-// MODULO PARA AGREGAR SOLO DOCUMENTOS
+// MODULO PARA AGREGAR SOLO SERVICIOS
 
 if ((isset($_POST["addServices"])) && ($_POST["addServices"] == "formServices")) {
 

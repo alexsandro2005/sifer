@@ -18,17 +18,15 @@ $gender = $select_gender->fetch(PDO::FETCH_ASSOC);
 <?php
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
-    // VARIABLES QUE CONTIENE EL NUMERO DE ENCRIPTACIONES DE LAS CONTRASEÑAS
-    $pass_encriptaciones = [
-        'cost' => 15
-    ];
+
 
     // DECLARACION DE LOS VALORES DE LAS VARIABLES DEPENDIENDO DEL TIPO DE CAMPO QUE TENGA EN EL FORMULARIO
     $document_user = $_POST['document'];
     $name_user = $_POST['name'];
     $surname = $_POST['surname'];
     $username = $_POST['username'];
-    $user_password = password_hash($_POST['password'], PASSWORD_DEFAULT, $pass_encriptaciones);
+    $password = $_POST['password'];
+    $passwordTwo = $_POST['password2'];
     $telephone = $_POST['telephone'];
     $email = $_POST['email'];
     $type_user = $_POST['id_type_user'];
@@ -47,11 +45,25 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
         // SI SE CUMPLE LA CONSULTA ES PORQUE EL USUARIO YA EXISTE
         echo '<script> alert ("// Estimado Usuario, los datos ingresados ya se encuentran registrados. //");</script>';
         echo '<script> window.location= "register_usu.php"</script>';
-    } elseif ($document_user == "" || $name_user == "" || $surname == ""  || $username == "" || $user_password == "" || $telephone == "" || $email == "" || $type_user == "" || $id_gender == "" || $datetime == "" || $checkbox == ""  || $id_state == "") {
+    } elseif ($document_user == "" || $name_user == "" || $surname == ""  || $username == "" || $password == "" || $passwordTwo == "" || $telephone == "" || $email == "" || $type_user == "" || $id_gender == "" || $datetime == "" || $checkbox == ""  || $id_state == "") {
         // CONDICIONAL DEPENDIENDO SI EXISTEN ALGUN CAMPO VACIO EN EL FORMULARIO DE LA INTERFAZ
         echo '<script> alert ("Estimado Usuario, Existen Datos Vacios En El Formulario");</script>';
-        echo '<script> window.location= "register_usu.php"</script>';
+        // echo '<script> window.location= "register_usu.php"</script>';
+    } elseif ($password != $passwordTwo) {
+        echo '<script> alert ("Las dos contraseñas deben ser iguales para habilitar su registro.");</script>';
+        // echo '<script> window.location= "register_usu.php"</script>';
+    }elseif(empty($checkbox)){
+        echo '<script> alert ("Debes aceptar los terminos y condiciones para validar tu registro.");</script>';
+        // echo '<script> window.location= "register_usu.php"</script>';
     } else {
+
+        // VARIABLES QUE CONTIENE EL NUMERO DE ENCRIPTACIONES DE LAS CONTRASEÑAS
+        $pass_encriptaciones = [
+            'cost' => 15
+        ];
+
+        $user_password = password_hash($password, PASSWORD_DEFAULT, $pass_encriptaciones);
+
         $register_user = $connection->prepare("INSERT INTO user(document,name,surname,telephone,email,date_user,id_type_user,id_gender,password,username,id_state,datetime_reg,confirmacion) VALUES('$document_user','$name_user','$surname','$telephone','$email','$datetime','$type_user','$id_gender','$user_password','$username','$id_state',NOW(),'$checkbox')");
         $register_user->execute();
         $register = $register_user->fetchAll(PDO::FETCH_ASSOC);
@@ -215,7 +227,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
 
             <!-- Container: State_user -->
             <div class="state">
-                <input class="cajas" type="hidden" value="2" name="id_state" placeholder="Ingrese su estado">
+                <input class="cajas" type="hidden" value="1" name="id_state" placeholder="Ingrese su estado">
             </div>
 
             <!-- Container: Terminos y Condiciones -->

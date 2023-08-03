@@ -3,13 +3,13 @@
         <h3><img src="../../controller/image/favicon.png" class="img-fluid" /><span><?php echo $usua['type_user'] ?> <span><?php echo $usua['name'] ?></span></h3>
         <h3><span></span></h3>
     </div>
-    <ul class="list-unstyled component m-0">
+    <ul class="list-unstyled component">
         <li class="active">
             <a href="index.php" class="dashboard"><i class="material-icons">dashboard</i>Menu Principal </a>
         </li>
         <li class="dropdown">
             <a href="#homeSubmen15" data-toggle="collapse" class="dropdown-toggle">
-                <i class="material-icons">dashboard</i>Act. Recientes
+                <i class="material-icons">dashboard</i>Actividad Reciente
             </a>
             <ul class="collapse list-unstyled menu" id="homeSubmen15">
                 <li><a href="act_trabajador.php">Actividades Trabajadores</a></li>
@@ -36,7 +36,6 @@
                 <li><a href="#" onclick="openFormMarca()">Crear Marca</a></li>
                 <li><a href="#" onclick="openFormMarcProducto()">Crear Marca Producto</a></li>
                 <li><a href="#" onclick="openFormCombustible()">Crear Combustible</a></li>
-                <li><a href="#" onclick="openFormModal()">Categoria Producto</a></li>
                 <li><a href="#" onclick="openFormCarroceria()">Crear Carroceria</a></li>
                 <li><a href="#" onclick="openFormCilindraje()">Crear Cilindraje</a></li>
                 <li><a href="#" onclick="openFormServicio()">Crear Serv. Moto</a></li>
@@ -44,11 +43,11 @@
         </li>
         <li class="dropdown">
             <a href="#homeSubmenu25" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                <i class="material-icons">apps</i>Historial Actualizacion
+                <i class="material-icons">apps</i>Actualizaciones
             </a>
             <ul class="collapse list-unstyled menu" id="homeSubmenu25">
                 <li><a href="historial_documentos.php">Historial Soat</a></li>
-                <li><a href="historial_documentos.php">Historial Tecnomecanica</a></li>
+                <li><a href="historialTecnomecanica.php">Historial Tecnomecanica</a></li>
                 <li><a href="historialAceite.php">Historial Cambio de aceite</a></li>
             </ul>
         </li>
@@ -60,17 +59,9 @@
             <ul class="collapse list-unstyled menu" id="homeSubmenu2">
                 <li><a href="crear_usu.php">Crear Usuario</a></li>
                 <li><a href="lista_usu.php">Lista usuarios</a></li>
-                <li><a href="lista_tipo_usu.php">Lista de tipos de usuarios</a></li>
-            </ul>
-        </li>
-
-        <li class="dropdown">
-            <a href="#homeSubmenu9" data-toggle="collapse" class="dropdown-toggle">
-                <i class="material-icons">date_range</i>Clientes
-            </a>
-            <ul class="collapse list-unstyled menu" id="homeSubmenu9">
                 <li><a href="crear_cliente.php">Crear cliente</a></li>
                 <li><a href="lista_clientes.php">Lista de Clientes</a></li>
+                <li><a href="lista_tipo_usu.php">Lista de tipos de usuarios</a></li>
             </ul>
         </li>
 
@@ -85,33 +76,18 @@
 
         <li class="dropdown">
             <a href="#homeSubmen17" data-toggle="collapse" class="dropdown-toggle">
-                <i class="material-icons">dashboard</i>Productos
+                <i class="material-icons">dashboard</i>Inventarios
             </a>
             <ul class="collapse list-unstyled menu" id="homeSubmen17">
                 <li><a href="lista_products.php">Lista de Productos</a></li>
                 <li><a href="formulario.php">Crear Producto</a></li>
-            </ul>
-        </li>
-
-        <li class="dropdown">
-            <a href="#homeSubmenu12" data-toggle="collapse" class="dropdown-toggle">
-                <i class="material-icons">date_range</i>Servicios
-            </a>
-            <ul class="collapse list-unstyled menu" id="homeSubmenu12">
                 <li><a href="service.php">Crear Servicio</a></li>
                 <li><a href="lista_service.php">Lista de Servicios</a></li>
+                <li><a href="documentos.php">Crear Seguro</a></li>
+                <li><a href="lista_documento.php">Lista de Seguros</a></li>
             </ul>
         </li>
 
-        <li class="dropdown">
-            <a href="#homeSubmenu19" data-toggle="collapse" class="dropdown-toggle">
-                <i class="material-icons">date_range</i>Documentos Legales
-            </a>
-            <ul class="collapse list-unstyled menu" id="homeSubmenu19">
-                <li><a href="documentos.php">Crear Documento Legal</a></li>
-                <li><a href="lista_documento.php">Lista de Documentos legales</a></li>
-            </ul>
-        </li>
         <li class="dropdown">
             <a href="#homeSubmenu5" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                 <i class="material-icons">border_color</i>Generar Ventas
@@ -119,33 +95,21 @@
             <ul class="collapse list-unstyled menu" id="homeSubmenu5">
                 <li><a href="vender.php">Venta de Productos</a></li>
                 <li><a href="vender_servicio.php">Venta de Servicios</a></li>
-                <li><a href="vender_documento.php">Venta de Documentos</a></li>
+                <li><a href="vender_documento.php">Venta de Seguros</a></li>
                 <li><a href="vender_completo.php">Venta completa</a></li>
-                <li><a href="listaVentas_completas.php">Lista Venta Completa</a></li>
-                <li><a href="ventas.php">Lista Venta Productos</a></li>
-                <li><a href="ventas_documento.php">Lista Ventas Documentos</a></li>
-                <li><a href="ventas_servicio.php">Lista Venta Servicios</a></li>
-            </ul>
-        </li>
-        <li class="dropdown">
-            <a href="#homeSubmenu22" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                <i class="material-icons">border_color</i>Compras
-            </a>
-            <ul class="collapse list-unstyled menu" id="homeSubmenu22">
-                <li><a href="compras.php">Compras de Productos</a></li>
-
 
             </ul>
         </li>
 
         <li class="dropdown">
             <a href="#homeSubmenu7" data-toggle="collapse" class="dropdown-toggle">
-                <i class="material-icons">content_copy</i>Reportes
+                <i class="material-icons">content_copy</i>Reporte Ventas
             </a>
             <ul class="collapse list-unstyled menu" id="homeSubmenu7">
-                <li><a href="reporte_usu.php">Reporte Usuarios</a></li>
-                <li><a href="lista_products.php">Inventario Productos</a></li>
-                <li><a href="ventas.php">Reporte de Ventas</a></li>
+                <li><a href="listaVentas_completas.php">Lista Venta Completa</a></li>
+                <li><a href="ventas.php">Lista Venta Productos</a></li>
+                <li><a href="ventas_documento.php">Lista Ventas Seguros</a></li>
+                <li><a href="ventas_servicio.php">Lista Venta Servicios</a></li>
             </ul>
         </li>
 
@@ -209,34 +173,29 @@
                                     $ventasServicio = $services->fetchAll(PDO::FETCH_ASSOC);
 
                                     date_default_timezone_set('America/Bogota');
+                                    echo '<ul class="dropdown-menu">';
 
                                     try {
                                         $fecha_actual = new DateTime();
 
-                                        echo '<ul class="dropdown-menu">';
+
                                         if (!empty($ventasServicio)) {
                                             foreach ($ventasServicio as $ventServicio) {
                                                 $fechaVenta = new DateTime($ventServicio['fecha']);
                                                 $fechaVencimiento = new DateTime($ventServicio['fecha_fin']);
                                                 $diasRestantes = $fecha_actual->diff($fechaVencimiento)->days;
-                                               
+
                                                 echo '<li>' . '<a>' . 'la moto con la placa' . ' ' . $ventServicio['placa'] . ' ' . 'Tiene' . ' ' . $diasRestantes . ' dias Restantes para realizar cambio de aceite' . ' </a>' . '</li>';
                                             }
                                             echo '<li><a class="btn btn-info" href="historial_cambio_aceite.php">Ver mas -></a></li>';
-                                            echo '</ul>';
                                         } else {
-                                            echo '<div>';
-                                            echo  '<ul class="dropdown-menu">';
-
                                             echo '<li>' . '<a>' . 'No hay cambio de aceites disponibles' .  '</a>' . '</li>';
-
-                                            echo  '</ul>';
-
-                                            echo '</div>';
                                         }
                                     } catch (PDOException $e) {
                                         echo 'Error' . $e->getMessage();
                                     }
+
+                                    echo  '</ul>';
                                     ?>
                                 </li>
 
@@ -273,17 +232,12 @@
                                             }
 
                                             echo '<li><a class="btn btn-info" href="historial_documentos.php">Ver mas -></a></li>';
-                                            echo '</ul>';
+                                            
                                         } else {
-                                            echo '<div>';
-                                            echo  '<ul class="dropdown-menu">';
-
                                             echo '<li>' . '<a>' . 'No hay documentos por actualizar' .  '</a>' . '</li>';
-
-                                            echo  '</ul>';
-
-                                            echo '</div>';
                                         }
+
+                                        echo  '</ul>';
                                     } catch (PDOException $e) {
                                         echo 'Error' . $e->getMessage();
                                     }
@@ -317,30 +271,28 @@
                                         $productos = $connection->prepare("SELECT * FROM productos INNER JOIN marca ON productos.id_marca = marca.id_marca AND productos.id_marca=marca.id_marca WHERE productos.cantidad <= 5 LIMIT 4");
                                         $productos->execute();
                                         $comprar_productos = $productos->fetchAll(PDO::FETCH_ASSOC);
-
+                                        echo  '<ul class="dropdown-menu">';
                                         if (!empty($comprar_productos)) {
-                                            echo  '<ul class="dropdown-menu">';
+                                            
                                             foreach ($comprar_productos as $desgastados) {
                                                 echo '<li>' . '<a>' . 'El producto' . ' ' . $desgastados['name_pro'] . ' ' . 'Esta agotado, tiene una cantidad de' . ' ' .  $desgastados['cantidad'] . ' ' . 'unidades' . '</a>' . '</li>';
                                             }
 
                                             echo '<li><a class="btn btn-info" href="lista_products.php">Ver mas</a></li>';
 
-                                            echo '</ul>';
+                                            
                                         } else {
-                                            echo '<div class="container-green">';
-                                            echo  '<ul class="dropdown-menu">';
+
 
                                             echo '<li>' . '<a>' . 'No hay productos agotados' .  '</a>' . '</li>';
-                                            echo '<li><a class="btn btn-info" href="lista_products.php">Ver mas</a></li>';
 
-                                            echo  '</ul>';
 
-                                            echo '</div>';
                                         }
                                     } catch (PDOException $e) {
                                         echo 'Error: ' . $e->getMessage();
                                     }
+
+                                    echo '</ul>';
 
                                     ?>
                                 </li>
