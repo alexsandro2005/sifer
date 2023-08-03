@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-07-2023 a las 12:08:27
+-- Tiempo de generación: 03-08-2023 a las 13:54:15
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -37,7 +37,9 @@ CREATE TABLE `carroceria` (
 --
 
 INSERT INTO `carroceria` (`id_carroceria`, `carroceria`) VALUES
-(3, 'No Aplica');
+(3, 'No Aplica'),
+(4, 'furgon'),
+(5, 'Sedan');
 
 -- --------------------------------------------------------
 
@@ -66,7 +68,11 @@ CREATE TABLE `cilindraje` (
 --
 
 INSERT INTO `cilindraje` (`id_cilindraje`, `cilindraje`) VALUES
-(4, 250);
+(4, 250),
+(6, 125),
+(8, 200),
+(9, 400),
+(11, 600);
 
 -- --------------------------------------------------------
 
@@ -84,8 +90,12 @@ CREATE TABLE `colores_moto` (
 --
 
 INSERT INTO `colores_moto` (`id_color`, `nombre_color`) VALUES
+(2302, 'Rojo Fuego'),
+(3003, 'Azul Rey'),
 (3020, 'Azul Cielo'),
-(10201, 'Verde marela');
+(10201, 'Verde marela'),
+(12070, 'Blanco'),
+(45030, 'Negro ');
 
 -- --------------------------------------------------------
 
@@ -103,7 +113,9 @@ CREATE TABLE `combustible` (
 --
 
 INSERT INTO `combustible` (`id_combustible`, `combustible`) VALUES
-(5, 'Gasolina');
+(5, 'Gasolina'),
+(6, 'Diesel'),
+(7, 'ACPM');
 
 -- --------------------------------------------------------
 
@@ -149,7 +161,15 @@ INSERT INTO `datetime_entry` (`id_entry`, `date_entry`, `document`) VALUES
 (174, '2023-07-28 11:13:52', 1110460410),
 (175, '2023-07-28 19:24:14', 1110460410),
 (176, '2023-07-29 13:37:07', 1110460410),
-(177, '2023-07-31 00:51:17', 1110460410);
+(177, '2023-07-31 00:51:17', 1110460410),
+(178, '2023-07-31 12:17:57', 1110460410),
+(179, '2023-07-31 13:27:39', 1110460410),
+(180, '2023-07-31 15:03:01', 1110460410),
+(181, '2023-08-02 13:31:34', 1110460410),
+(182, '2023-08-02 14:07:37', 1110460410),
+(183, '2023-08-02 14:18:42', 1110460410),
+(184, '2023-08-02 22:44:50', 1110460410),
+(185, '2023-08-03 05:27:35', 1220202020);
 
 -- --------------------------------------------------------
 
@@ -184,8 +204,9 @@ CREATE TABLE `documentos` (
 
 INSERT INTO `documentos` (`id_documento`, `codigo`, `nombre`, `precio`, `fecha_registro`, `cantidad`) VALUES
 (234, '12102020', 'SOAT', 230000.00, '2023-07-09 00:56:33', 1),
-(235, '12020022', 'Tecnico mecanica', 26000.00, '2023-07-27 14:48:47', 1),
-(236, '23455643', 'Tarjeta', 1230020.00, '2023-07-27 14:49:36', 1);
+(238, '12020202', 'Accidente personales', 300000.00, '2023-08-03 02:45:34', 1),
+(239, '33201010', 'contra todo riesgo', 320000.00, '2023-08-03 02:48:48', 1),
+(240, '12302012', 'accidente carretera', 400000.00, '2023-08-03 02:49:46', 1);
 
 -- --------------------------------------------------------
 
@@ -205,8 +226,8 @@ CREATE TABLE `documentos_vendidos` (
 --
 
 INSERT INTO `documentos_vendidos` (`id`, `id_documento`, `id_venta`, `existencia`) VALUES
-(24, 234, 61, 1),
-(25, 235, 62, 1);
+(34, 238, 73, 1),
+(35, 239, 73, 1);
 
 -- --------------------------------------------------------
 
@@ -231,6 +252,25 @@ INSERT INTO `gender` (`id_gender`, `gender`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `intentos`
+--
+
+CREATE TABLE `intentos` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `document` int(10) UNSIGNED NOT NULL,
+  `fecha_actual` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `intentos`
+--
+
+INSERT INTO `intentos` (`id`, `document`, `fecha_actual`) VALUES
+(14, 1220202020, '2023-08-03');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `marca`
 --
 
@@ -245,7 +285,9 @@ CREATE TABLE `marca` (
 
 INSERT INTO `marca` (`id_marca`, `marca`) VALUES
 (3, 'yamaha'),
-(4, 'chevrolet');
+(4, 'chevrolet'),
+(5, 'Terpel'),
+(6, 'alpinestars');
 
 -- --------------------------------------------------------
 
@@ -263,7 +305,11 @@ CREATE TABLE `marcas_motos` (
 --
 
 INSERT INTO `marcas_motos` (`id`, `nombre`) VALUES
-(12232, 'kia');
+(12020, 'Pulsar'),
+(12232, 'kia'),
+(12302, 'Suzuki'),
+(13403, 'AKT'),
+(32010, 'Yamaha ');
 
 -- --------------------------------------------------------
 
@@ -281,7 +327,10 @@ CREATE TABLE `modelos` (
 --
 
 INSERT INTO `modelos` (`id_modelo`, `modelo_año`) VALUES
-(12919, 1997);
+(2130, 2022),
+(12010, 2014),
+(12919, 1997),
+(23020, 2011);
 
 -- --------------------------------------------------------
 
@@ -308,7 +357,9 @@ CREATE TABLE `motorcycles` (
 --
 
 INSERT INTO `motorcycles` (`placa`, `barcode`, `km`, `id_modelo`, `id_marca`, `id_color`, `id_carroceria`, `document`, `id_cilindraje`, `id_combustible`, `id_servicio_moto`) VALUES
-('FRE23G', '1201010101', 2100, 12919, 12232, 10201, 3, 1201020100, 4, 5, 4);
+('DDF23W', '2302020100', 32000, 12010, 12020, 3003, 4, 1201020100, 8, 5, 3),
+('FRE23G', '1201010101', 2100, 12919, 12232, 10201, 3, 1201020100, 4, 5, 4),
+('WWQ21P', '2301010100', 12000, 12919, 13403, 10201, 5, 1220202020, 6, 6, 2);
 
 -- --------------------------------------------------------
 
@@ -331,7 +382,11 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id`, `codigo`, `name_pro`, `precio`, `id_estado`, `id_marca`, `cantidad`) VALUES
-(15, '120303', 'llantas', 23000.00, 1, 4, 19);
+(15, '120303', 'llantas', 23000.00, 1, 4, 19),
+(16, '1220202020', 'liquido de frenos', 12000.00, 1, 5, 29),
+(17, '3302020200', 'luces LED', 21000.00, 1, 6, 31),
+(18, '0203020202', 'parabrisas', 45000.00, 1, 4, 30),
+(19, '2302201001', 'limpiador de cadena', 12000.00, 1, 6, 14);
 
 -- --------------------------------------------------------
 
@@ -351,7 +406,7 @@ CREATE TABLE `productos_vendidos` (
 --
 
 INSERT INTO `productos_vendidos` (`id`, `id_producto`, `existencia`, `id_venta`) VALUES
-(62, 15, 2, 61);
+(79, 16, 1, 73);
 
 -- --------------------------------------------------------
 
@@ -373,7 +428,8 @@ CREATE TABLE `services` (
 --
 
 INSERT INTO `services` (`id_services`, `code_service`, `service`, `costo_service`, `state`, `cantidad`) VALUES
-(32, '12230', 'cambio de aceite', 12000.00, 1, 1);
+(32, '12230', 'cambio de aceite', 12000.00, 1, 1),
+(33, '23230', 'transmision', 70000.00, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -393,7 +449,7 @@ CREATE TABLE `servicios_vendidos` (
 --
 
 INSERT INTO `servicios_vendidos` (`id`, `id_servicio`, `id_venta`, `existencia`) VALUES
-(5, 12230, 61, 1);
+(7, 12230, 73, 1);
 
 -- --------------------------------------------------------
 
@@ -411,6 +467,7 @@ CREATE TABLE `servicio_moto` (
 --
 
 INSERT INTO `servicio_moto` (`id_servicio_moto`, `servicio_moto`) VALUES
+(1, 'carreras'),
 (2, 'turismo'),
 (3, 'Domiciliario'),
 (4, 'Particular');
@@ -489,16 +546,19 @@ INSERT INTO `terminos` (`id_terminos`, `terminos`) VALUES
 CREATE TABLE `trigger_documents` (
   `id` int(10) NOT NULL,
   `placa` varchar(6) NOT NULL,
-  `codigo_documento` varchar(255) NOT NULL
+  `codigo_documento` varchar(255) NOT NULL,
+  `fecha_registro` datetime NOT NULL,
+  `fecha_fin` datetime NOT NULL,
+  `estado` int(2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `trigger_documents`
 --
 
-INSERT INTO `trigger_documents` (`id`, `placa`, `codigo_documento`) VALUES
-(21, 'FRE23G', '12102020'),
-(22, 'FRE23G', '12020022');
+INSERT INTO `trigger_documents` (`id`, `placa`, `codigo_documento`, `fecha_registro`, `fecha_fin`, `estado`) VALUES
+(25, 'WWQ21P', '12020202', '2023-08-03 04:22:27', '2024-08-03 04:22:27', 1),
+(26, 'WWQ21P', '33201010', '2023-08-03 04:22:27', '2024-08-03 04:22:27', 1);
 
 -- --------------------------------------------------------
 
@@ -512,15 +572,16 @@ CREATE TABLE `trigger_service` (
   `placa` varchar(6) NOT NULL,
   `fecha` datetime NOT NULL,
   `fecha_fin` datetime NOT NULL,
-  `nombre` varchar(255) NOT NULL
+  `nombre` varchar(255) NOT NULL,
+  `estado` int(2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `trigger_service`
 --
 
-INSERT INTO `trigger_service` (`id`, `codigo_service`, `placa`, `fecha`, `fecha_fin`, `nombre`) VALUES
-(5, 12230, 'FRE23G', '2023-07-30 15:58:13', '2023-09-14 15:58:13', 'cambio de aceite');
+INSERT INTO `trigger_service` (`id`, `codigo_service`, `placa`, `fecha`, `fecha_fin`, `nombre`, `estado`) VALUES
+(7, 12230, 'WWQ21P', '2023-08-03 04:22:27', '2023-08-23 04:22:27', 'cambio de aceite', 1);
 
 -- --------------------------------------------------------
 
@@ -540,7 +601,11 @@ CREATE TABLE `trigger_user` (
 --
 
 INSERT INTO `trigger_user` (`id`, `document`, `password`, `fecha_registro`) VALUES
-(1, 1110460410, '$2y$15$YREaUaWC3QxBBM9qGcCyM.WfdCzA/ztg3KnIxYrMjgBti3vQWyhye', '2023-07-30 23:30:17');
+(12, 1201020100, '$2y$15$FvGV8omlVfgr4SX/v3SupOAY86pjpt49SYqQhgEPMMigERrRJM3I6', '2023-08-03 00:15:35'),
+(13, 1202030202, '$2y$15$buVqU7RJdrmdAI/9EWauSeuSXn60Zvf9qL4XceUNJJ6SbTZ9d8aY2', '2023-08-03 00:16:12'),
+(14, 1202030202, '$2y$15$buVqU7RJdrmdAI/9EWauSeuSXn60Zvf9qL4XceUNJJ6SbTZ9d8aY2', '2023-08-03 00:16:39'),
+(15, 1220202020, '$2y$15$tAGJonNEUsP5kH.cdOJDQe9x2j0rRDaMkYfsh0LlLR7I.TUYXJ1Ae', '2023-08-03 00:18:52'),
+(16, 1220202020, '$2y$15$tAGJonNEUsP5kH.cdOJDQe9x2j0rRDaMkYfsh0LlLR7I.TUYXJ1Ae', '2023-08-03 05:26:45');
 
 -- --------------------------------------------------------
 
@@ -589,9 +654,11 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`document`, `name`, `surname`, `telephone`, `email`, `date_user`, `id_type_user`, `id_gender`, `password`, `username`, `id_state`, `datetime_reg`, `confirmacion`) VALUES
-(1202021, 'carlos', 'benitez', '3105678901', 'benitez12@misena.edu.co', '2005-05-07', 2, 1, '$2y$15$hqp8akQotlbHPvrwzlhcCekW.ohZXBEGxzcpRS77poKyThWQSzTvS', 'benitez212', 2, '2023-05-11 08:34:23', 1),
+(1202021, 'carlos', 'benitez', '3105678901', 'benitez12@misena.edu.co', '2005-05-07', 2, 1, '$2y$15$hqp8akQotlbHPvrwzlhcCekW.ohZXBEGxzcpRS77poKyThWQSzTvS', 'benitez212', 1, '2023-05-11 08:34:23', 1),
 (1110460410, 'luis', 'garcia', '3213301955', 'lamunoz0140@misena.edu.co', '2005-12-17', 1, 1, '$2y$15$hrY7R.B/eaCrO91jIBsiEOUKad6X/yF1CrrKRupTjs0uagsq/PymK', 'siferapp20', 1, '2023-05-11 15:35:23', 1),
-(1201020100, 'cslsldlsl', 'sldlalslsl', '3201020102', 'ldlslsl@xn--gmai-jqa.com', '2023-07-20', 3, 1, '$2y$15$FvGV8omlVfgr4SX/v3SupOAY86pjpt49SYqQhgEPMMigERrRJM3I6', 'lsldlsl232', 2, '0000-00-00 00:00:00', 1);
+(1201020100, 'Juan', 'Garcia', '3201020102', 'ldlslsl@xn--gmai-jqa.com', '2023-07-20', 3, 1, '$2y$15$FvGV8omlVfgr4SX/v3SupOAY86pjpt49SYqQhgEPMMigERrRJM3I6', 'Juan23', 1, '0000-00-00 00:00:00', 1),
+(1202030202, 'Daniel', 'Aristizabal', '3203020201', 'daniel@gmail.com', '2005-08-02', 3, 1, '$2y$15$buVqU7RJdrmdAI/9EWauSeuSXn60Zvf9qL4XceUNJJ6SbTZ9d8aY2', 'aristizaba', 1, '0000-00-00 00:00:00', 1),
+(1220202020, 'Esteban ', 'Alvarez', '3222203020', 'esteban@gmail.com', '2005-07-31', 3, 1, '$2y$15$eAzb79Wr6YTyIgxMdYAzJe17vWah1koaTM62WjVR2jUJ6V5.lULfG', 'alvarez230', 1, '2023-08-02 13:06:07', 1);
 
 --
 -- Disparadores `user`
@@ -621,23 +688,8 @@ CREATE TABLE `ventas` (
 --
 
 INSERT INTO `ventas` (`id`, `document`, `placa`, `fecha`, `fecha_fin`, `total`) VALUES
-(61, 1202021, 'FRE23G', '2023-07-30 15:58:13', '2024-07-30 15:58:13', 288000),
-(62, 1202021, 'FRE23G', '2023-07-31 01:13:21', '2024-07-31 01:13:21', 26000);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `venta_documentos`
---
-
-CREATE TABLE `venta_documentos` (
-  `id_venta` int(11) NOT NULL,
-  `documento` int(10) NOT NULL,
-  `placa` varchar(6) NOT NULL,
-  `fecha` datetime NOT NULL,
-  `fecha_fin` datetime NOT NULL,
-  `total` decimal(7,0) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(73, 1202021, 'WWQ21P', '2023-08-03 04:22:27', '2024-08-03 04:22:27', 644000),
+(74, 1202021, 'DDF23W', '2023-08-03 04:45:32', '2024-08-03 04:45:32', 12000);
 
 --
 -- Índices para tablas volcadas
@@ -705,6 +757,12 @@ ALTER TABLE `documentos_vendidos`
 --
 ALTER TABLE `gender`
   ADD PRIMARY KEY (`id_gender`);
+
+--
+-- Indices de la tabla `intentos`
+--
+ALTER TABLE `intentos`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `marca`
@@ -838,12 +896,6 @@ ALTER TABLE `ventas`
   ADD KEY `ventas_ibfk_2` (`placa`);
 
 --
--- Indices de la tabla `venta_documentos`
---
-ALTER TABLE `venta_documentos`
-  ADD PRIMARY KEY (`id_venta`);
-
---
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
@@ -851,7 +903,7 @@ ALTER TABLE `venta_documentos`
 -- AUTO_INCREMENT de la tabla `carroceria`
 --
 ALTER TABLE `carroceria`
-  MODIFY `id_carroceria` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_carroceria` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `category`
@@ -863,19 +915,19 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT de la tabla `cilindraje`
 --
 ALTER TABLE `cilindraje`
-  MODIFY `id_cilindraje` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_cilindraje` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `combustible`
 --
 ALTER TABLE `combustible`
-  MODIFY `id_combustible` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_combustible` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `datetime_entry`
 --
 ALTER TABLE `datetime_entry`
-  MODIFY `id_entry` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=178;
+  MODIFY `id_entry` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
 
 --
 -- AUTO_INCREMENT de la tabla `datetime_out`
@@ -887,13 +939,13 @@ ALTER TABLE `datetime_out`
 -- AUTO_INCREMENT de la tabla `documentos`
 --
 ALTER TABLE `documentos`
-  MODIFY `id_documento` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=238;
+  MODIFY `id_documento` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=241;
 
 --
 -- AUTO_INCREMENT de la tabla `documentos_vendidos`
 --
 ALTER TABLE `documentos_vendidos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `gender`
@@ -902,34 +954,40 @@ ALTER TABLE `gender`
   MODIFY `id_gender` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de la tabla `intentos`
+--
+ALTER TABLE `intentos`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
 -- AUTO_INCREMENT de la tabla `marca`
 --
 ALTER TABLE `marca`
-  MODIFY `id_marca` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_marca` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_vendidos`
 --
 ALTER TABLE `productos_vendidos`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT de la tabla `services`
 --
 ALTER TABLE `services`
-  MODIFY `id_services` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id_services` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios_vendidos`
 --
 ALTER TABLE `servicios_vendidos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `servicio_moto`
@@ -953,19 +1011,19 @@ ALTER TABLE `terminos`
 -- AUTO_INCREMENT de la tabla `trigger_documents`
 --
 ALTER TABLE `trigger_documents`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `trigger_service`
 --
 ALTER TABLE `trigger_service`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `trigger_user`
 --
 ALTER TABLE `trigger_user`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `type_user`
@@ -977,13 +1035,7 @@ ALTER TABLE `type_user`
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
-
---
--- AUTO_INCREMENT de la tabla `venta_documentos`
---
-ALTER TABLE `venta_documentos`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- Restricciones para tablas volcadas
@@ -1042,6 +1094,24 @@ ALTER TABLE `user`
 ALTER TABLE `ventas`
   ADD CONSTRAINT `ventas_ibfk_1` FOREIGN KEY (`document`) REFERENCES `user` (`document`) ON UPDATE CASCADE,
   ADD CONSTRAINT `ventas_ibfk_2` FOREIGN KEY (`placa`) REFERENCES `motorcycles` (`placa`) ON UPDATE CASCADE;
+
+DELIMITER $$
+--
+-- Eventos
+--
+CREATE DEFINER=`root`@`localhost` EVENT `actualizar_estado_seguro` ON SCHEDULE EVERY 1 DAY STARTS '2023-08-03 04:18:05' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+    UPDATE trigger_documents
+    SET estado = 2
+    WHERE fecha_fin < CURRENT_TIMESTAMP();
+END$$
+
+CREATE DEFINER=`root`@`localhost` EVENT `actualizar_estado_service` ON SCHEDULE EVERY 1 DAY STARTS '2023-08-03 04:21:36' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+    UPDATE trigger_service
+    SET estado = 2
+    WHERE fecha_fin < CURRENT_TIMESTAMP();
+END$$
+
+DELIMITER ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
