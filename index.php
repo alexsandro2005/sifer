@@ -58,7 +58,7 @@
                 <input class="submit" type="submit" name="iniciar" value="Iniciar Sesion">
             </form>
             <span class="text-footer">¿Aun no se encuentra registrado? <a href="./register_usu.php">Registrarse</a></span>
-            <span class="text-footer">¿Olvido su contraseña? <a href="controller/cambiar_contrasena.php">Olvido contraseña</a></span>
+            <span class="text-footer">¿Olvido su contraseña? <a href="controller/authentication.php">Olvido contraseña</a></span>
         </div>
 
         <div class="ctn-text">

@@ -106,7 +106,7 @@ if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
         <form method="POST" name="formreg" action="" autocomplete="off" id="formulario" class="formulario">
 
             <!-- Container: Document -->
-
+ 
             <div class="formulario__grupo" id="grupo__document">
                 <label for="document" class="formulario__label">Numero de documento</label>
                 <div class="formulario__grupo-input">

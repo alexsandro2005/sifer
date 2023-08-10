@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -21,32 +22,23 @@
         <div class="ctn-form">
             <header>
                 <img src="../controller/image/favicon.png" alt="" class="logo">
-                <h1 class="title"> <span>VALIDACION EXISTENCIA DE USUARIO</span></h1>
+                <h1 class="title"> <span>VALIDACION CORREO ELECTRONICO</span></h1>
             </header>
 
-            <form action="../controller/recuperar_contrasena.php" method="POST" autocomplete="off" id="formulario" class="formulario" autocomplete="off">
+            <form action="./envio_correo.php" name="formCorreo" method="POST" autocomplete="off" id="formulario" class="formulario" autocomplete="off">
 
-                <!-- Group: Document -->
-                <div class="formulario__grupo" id="grupo__document">
-                    <label for="document" class="formulario__label">Numero de documento</label>
+                <!-- Container: email -->
+                <div class="formulario__grupo" id="grupo__email">
+                    <label for="email" class="formulario__label">Correo Electronico</label>
                     <div class="formulario__grupo-input">
-                        <input type="number" autofocus onkeypress="" maxlength="10" oninput="maxlengthNumber(this);" class="formulario__input" name="document" id="document" required placeholder="Ingrese su numero de documento">
+                        <input type="email" maxlength="30" oninput="maxlengthNumber(this);" class="formulario__input" name="email" required id="email" placeholder="Ingrese su correo electronico">
                         <i class="formulario__validacion-estado fas fa-times-circle"></i>
                     </div>
-                    <p class="formulario__input-error">El numero de documento debe ser de 6 a 10 numeros.</p>
+                    <p class="formulario__input-error">Su correo solo puede contener letras, numeros, puntos, guiones y guiones bajos. Obligatoriamente debe tener el signo arroba "@".
+                    <p>
                 </div>
-                <!-- Group: Username -->
-
-                <div class="formulario__grupo" id="grupo__username">
-                    <label for="username" class="formulario__label">Nombre de Usuario</label>
-                    <div class="formulario__grupo-input">
-                        <input type="text" onkeypress="return(multipletext(event));" maxlength="12" oninput="maxlengthNumber(this);" class="formulario__input" name="username" required id="username" placeholder="Ingrese su nombre de usuario">
-                        <i class="formulario__validacion-estado fas fa-times-circle"></i>
-                    </div>
-                    <p class="formulario__input-error">El usuario tiene que ser de 10 a 12 dígitos y solo puede contener numeros, letras y guion bajo.</p>
-                </div>
-
-                <input type="submit" class="submit"  name="inicio" value="Validar"> 
+                <input type="submit" class="submit" name="inicio" value="Validar">
+                <input type="hidden" class="submit" name="MM_correo" value="formCorreo">
 
             </form>
             <span class="text-footer"><a href="../index.php">Regresar a Pagina Principal</a></span>
@@ -60,6 +52,27 @@
             <p class="textdescription">Lo que más quieres en el mundo tiene nombre, placa y cilindraje, son parte de nuestro día a día, ningún cuidado es suficiente para demostrarle cuánto las amamos, por eso somos tu mejor eleccion.</p>
         </div>
     </div>
+
+
+    <script>
+        const inputElement = document.getElementById('email');
+
+        inputElement.addEventListener('input', function(event) {
+            const inputValue = event.target.value;
+            const sanitizedValue = inputValue.replace(/\s/g, ''); // Eliminar espacios en blanco
+
+            if (inputValue !== sanitizedValue) {
+                event.target.value = sanitizedValue;
+            }
+        });
+
+
+        inputElement.addEventListener('keypress', function(event) {
+            if (event.key === ' ') {
+                event.preventDefault(); // Evita que se ingrese el espacio
+            }
+        });
+    </script>
 
     <!-- FUNCION QUE PERMITE INGRESAR SOLO EL NUMERO REQUERIDOS DE VALORES DE ACUERDO AL VALOR DEL MAXLENGTH DEL INPUT -->
 
@@ -109,4 +122,3 @@
 </body>
 
 </html>
-

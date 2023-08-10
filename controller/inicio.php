@@ -45,8 +45,6 @@ if ($_POST["iniciar"]) {
         $userentry->execute();
         $date_entry = $userentry->fetchAll(PDO::FETCH_ASSOC);
 
-
-
         ///dependiendo del tipo de usuario lo redireccionamos a una su pagina correspondiente//
 
         if ($_SESSION['tipo'] == 1) {
@@ -81,7 +79,8 @@ if ($_POST["iniciar"]) {
             $intentos->execute([$document, $fecha_actual]);
             $intento = $intentos->fetch(PDO::FETCH_ASSOC);
 
-            if ($intento['conteo'] == $posibilidades) { // Verificar el valor de "conteo"
+            if ($intento['conteo'] == $posibilidades) { 
+                // Verificar el valor de "conteo"
                 $update_state = $connection->prepare("UPDATE user SET id_state = 2 WHERE document = '$document'");
                 if ($update_state->execute()) {
                     echo '<script>alert("Has superado la cantidad de intentos posibles, tu estado ha cambiado a cuenta inactiva.");</script>';

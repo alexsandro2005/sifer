@@ -1,10 +1,5 @@
 <?php
-session_start();
-require_once("../database/connection.php");
-$db = new Database();
-$connection = $db->conectar();
-
-
+require_once('envio_correo.php');
 ?>
 <?php
 
@@ -13,9 +8,11 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
     $acumulador = 0;
 
     // DECLARAMOS LAS VARIABLES 
+    
+    $clave_secreta = $_GET['smtp'];
     $password = $_POST['password'];
     $passwordTwo = $_POST['password2'];
-    $docu_user = $_SESSION['id_user'];
+    $docu_user = desencriptar($clave_secreta, $token);
 
     // Use prepared statements to avoid SQL injection
     $passwordUser = $connection->prepare("SELECT * FROM user WHERE document = :docu_user");
@@ -25,13 +22,12 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
 
     if ($_POST['password'] == "" || $_POST['password2'] == "") {
         echo '<script>alert("datos vacios no ingreso la nueva clave.");</script>';
-        echo '<script>window.location="recuperar_contrasena.php"</script>';
+        
     } elseif ($password !== $passwordTwo) {
         echo '<script>alert("las contraseñas son diferentes, deben ser iguales.");</script>';
-        echo '<script>window.location="recuperar_contrasena.php"</script>';
+        
     } elseif (password_verify($password, $passUser['password'])) {
         echo '<script>alert("La contraseña ya fue registrada anteriormente.");</script>';
-        echo '<script>window.location="recuperar_contrasena.php"</script>';
     } elseif (!empty($password)) {
 
         $passwordsTrigger = $connection->prepare("SELECT * FROM trigger_user WHERE document = :docu_user GROUP BY document HAVING COUNT(*) <= 5");
@@ -60,7 +56,7 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
 
                     if ($acumulador > 0) {
                         echo '<script>alert("la contraseña ya fue registrada anteriormente, ingresa otra por favor");</script>';
-                        echo '<script>window.location="recuperar_contrasena.php"</script>';
+                        
                     } else {
 
                         // Hash the password
@@ -105,32 +101,6 @@ if ((isset($_POST["MM_update"])) && ($_POST["MM_update"] == "form2")) {
     }
 }
 ?>
-
-<?php
-if (isset($_POST["inicio"])) {
-    // Esta linea me sirve para imprimir el valor que recibe la variable cuando el usuario digita en el fomulario
-    $documento = $_POST["document"];
-    $username = $_POST["username"];
-    // Estas lineas sirven para realizar la consulta a la base de datos
-    $sql = $connection->prepare("SELECT * FROM user WHERE document = '$documento' AND username='$username'");
-    $sql->execute();
-    // Esta linea almacena la consulta a la base datos
-    $fila = $sql->fetch(PDO::FETCH_ASSOC);
-
-    if ($fila) {
-        // Esta linea sirve para mirar la consulta al archivo donde se encuentra la variable  $fila
-        $_SESSION['id_user'] = $fila['document'];
-    } else {
-        echo '<script> alert ("Estimado usuario el documento o nombre de usuario se valida como no registrado.")</script>';
-        echo '<script> window.location="cambiar_contrasena.php"</script>';
-    }
-} elseif (empty($_SESSION['id_user'])) {
-    echo '<script> alert ("Debe ingresar los datos requeridos")</script>';
-    echo '<script> window.location="cambiar_contrasena.php"</script>';
-}
-
-?>
-
 
 <!DOCTYPE html>
 <html lang="en">
