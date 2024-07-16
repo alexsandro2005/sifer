@@ -1,6 +1,7 @@
 <div id="sidebar">
     <div class="sidebar-header">
-        <h3><img src="../../controller/image/favicon.png" class="img-fluid" /><span><?php echo $usua['type_user'] ?> <span><?php echo $usua['name'] ?></span></h3>
+        <h3><img src="../../controller/image/favicon.png" class="img-fluid" /><span><?php echo $usua['type_user'] ?>
+                <span><?php echo $usua['name'] ?></span></h3>
         <h3><span></span></h3>
     </div>
     <ul class="list-unstyled component">
@@ -210,11 +211,33 @@
                                         </span> <span class="notification">4</span>
                                     </a>
                                     <?php
-
-                                    $documents = $connection->query("SELECT ventas.total,ventas.fecha, ventas.id,ventas.fecha_fin,user.name,motorcycles.placa,documentos.nombre,GROUP_CONCAT(documentos.codigo, '..',documentos.nombre, '..', documentos.nombre SEPARATOR '__') AS documentos FROM ventas INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = ventas.id INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento INNER JOIN user ON user.document=ventas.document INNER JOIN motorcycles ON  motorcycles.placa=ventas.placa GROUP BY ventas.id ORDER BY ventas.id LIMIT 5;");
+                                    $documents = $connection->query("
+SELECT 
+    ventas.total,
+    ventas.fecha,
+    ventas.id,
+    ventas.fecha_fin,
+    user.name,
+    motorcycles.placa,
+    GROUP_CONCAT(documentos.codigo, '..', documentos.nombre, '..', documentos.nombre SEPARATOR '__') AS documentos 
+FROM ventas 
+INNER JOIN documentos_vendidos ON documentos_vendidos.id_venta = ventas.id 
+INNER JOIN documentos ON documentos.id_documento = documentos_vendidos.id_documento 
+INNER JOIN user ON user.document = ventas.document 
+INNER JOIN motorcycles ON motorcycles.placa = ventas.placa 
+GROUP BY 
+    ventas.id, 
+    ventas.total, 
+    ventas.fecha, 
+    ventas.fecha_fin, 
+    user.name, 
+    motorcycles.placa 
+ORDER BY ventas.id 
+LIMIT 5;
+");
                                     $ventasDocumentos = $documents->fetchAll(PDO::FETCH_OBJ);
-
                                     date_default_timezone_set('America/Bogota');
+
 
                                     try {
                                         $fecha_actual = new DateTime();
@@ -232,7 +255,6 @@
                                             }
 
                                             echo '<li><a class="btn btn-info" href="historial_documentos.php">Ver mas -></a></li>';
-                                            
                                         } else {
                                             echo '<li>' . '<a>' . 'No hay documentos por actualizar' .  '</a>' . '</li>';
                                         }
@@ -273,20 +295,16 @@
                                         $comprar_productos = $productos->fetchAll(PDO::FETCH_ASSOC);
                                         echo  '<ul class="dropdown-menu">';
                                         if (!empty($comprar_productos)) {
-                                            
+
                                             foreach ($comprar_productos as $desgastados) {
                                                 echo '<li>' . '<a>' . 'El producto' . ' ' . $desgastados['name_pro'] . ' ' . 'Esta agotado, tiene una cantidad de' . ' ' .  $desgastados['cantidad'] . ' ' . 'unidades' . '</a>' . '</li>';
                                             }
 
                                             echo '<li><a class="btn btn-info" href="lista_products.php">Ver mas</a></li>';
-
-                                            
                                         } else {
 
 
                                             echo '<li>' . '<a>' . 'No hay productos agotados' .  '</a>' . '</li>';
-
-
                                         }
                                     } catch (PDOException $e) {
                                         echo 'Error: ' . $e->getMessage();

@@ -7,13 +7,12 @@ $connection = $db->conectar();
 require_once("../../controller/validarSesion.php");
 
 if (isset($_POST['btncerrar'])) {
-	session_destroy();
-	header("Location:../../index.php");
+    session_destroy();
+    header("Location:../../index.php");
 }
 
 
 if ((isset($_POST["MM_insert"])) && ($_POST["MM_insert"] == "formreg")) {
-
     $codigo = $_POST["codigo"];
     $sentencia = $connection->prepare("SELECT * FROM productos WHERE codigo = ? LIMIT 1;");
     $sentencia->execute([$codigo]);
